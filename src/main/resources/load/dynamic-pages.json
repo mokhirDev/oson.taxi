@@ -1,0 +1,504 @@
+[
+  {
+    "pageCode": "start",
+    "query": [],
+    "message": [],
+    "expectedCallBacks": [],
+    "answerType": [
+      "Text"
+    ],
+    "nextPage": [
+      "lang"
+    ],
+    "buttons": []
+  },
+  {
+    "pageCode": "lang",
+    "query": [
+      {
+        "type": "UPDATE",
+        "name": "saveLangToUser"
+      }
+    ],
+    "message": [
+      "choose.language"
+    ],
+    "expectedCallBacks": [
+      "back"
+    ],
+    "answerType": [
+      "CallBack"
+    ],
+    "nextPage": [
+      "role"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "uz.flag",
+          "callBack": "UZ",
+          "buttonType": "InlineKeyboardMarkup"
+        },
+        {
+          "textCode": "ru.flag",
+          "callBack": "RU",
+          "buttonType": "InlineKeyboardMarkup"
+        },
+        {
+          "textCode": "en.flag",
+          "callBack": "EN",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "role",
+    "query": [
+      {
+        "type": "UPDATE",
+        "name": "saveRoleToUser"
+      }
+    ],
+    "message": [
+      "choose.option"
+    ],
+    "expectedCallBacks": [
+      "UZ",
+      "RU",
+      "EN",
+      "back"
+    ],
+    "answerType": [
+      "CallBack"
+    ],
+    "nextPage": [
+      "driver",
+      "passenger",
+      "lang"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "btn.driver",
+          "callBack": "DRIVER",
+          "buttonType": "InlineKeyboardMarkup"
+        },
+        {
+          "textCode": "btn.passenger",
+          "callBack": "PASSENGER",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ],
+      [
+        {
+          "textCode": "btn.back",
+          "callBack": "back",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "driver",
+    "query": [],
+    "message": [
+      "driver.menu"
+    ],
+    "expectedCallBacks": [
+      "DRIVER"
+    ],
+    "answerType": [
+      "CallBack"
+    ],
+    "nextPage": [
+      "role"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "join.to.group",
+          "callBack": "join_to_group",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ],
+      [
+        {
+          "textCode": "btn.back",
+          "callBack": "back",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "passenger",
+    "query": [],
+    "message": [
+      "passenger.menu"
+    ],
+    "expectedCallBacks": [
+      "PASSENGER",
+      "main.menu",
+      "cancel_order"
+    ],
+    "answerType": [
+      "CallBack"
+    ],
+    "nextPage": [
+      "phone_number",
+      "role"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "btn.create.order",
+          "callBack": "create_order",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ],
+      [
+        {
+          "textCode": "btn.my.orders",
+          "callBack": "my_orders",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ],
+      [
+        {
+          "textCode": "btn.back",
+          "callBack": "back",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "phone_number",
+    "query": [
+      {
+        "type": "UPDATE",
+        "name": "createOrder"
+      }
+    ],
+    "expectedCallBacks": [
+      "create_order "
+    ],
+    "answerType": [
+      "Contact"
+    ],
+    "nextPage": [
+      "order_from"
+    ],
+    "message": [
+      "share.contact"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "btn.share.contact",
+          "buttonType": "Contact"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "order_from",
+    "query": [
+      {
+        "type": "UPDATE",
+        "name": "saveFromCity"
+      }
+    ],
+    "expectedCallBacks": [],
+    "answerType": [
+      "CallBack"
+    ],
+    "nextPage": [
+      "order_to"
+    ],
+    "message": [
+      "left.from"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "btn.city.kokand",
+          "callBack": "kokand",
+          "buttonType": "InlineKeyboardMarkup"
+        },
+        {
+          "textCode": "btn.city.tashkent",
+          "callBack": "tashkent",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "order_to",
+    "query": [
+      {
+        "type": "UPDATE",
+        "name": "saveToCity"
+      }
+    ],
+    "expectedCallBacks": [
+      "kokand",
+      "tashkent"
+    ],
+    "answerType": [
+      "CallBack"
+    ],
+    "nextPage": [
+      "order_date"
+    ],
+    "message": [
+      "arrive.to"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "btn.city.kokand",
+          "callBack": "kokand",
+          "buttonType": "InlineKeyboardMarkup"
+        },
+        {
+          "textCode": "btn.city.tashkent",
+          "callBack": "tashkent",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "order_date",
+    "query": [
+      {
+        "type": "UPDATE",
+        "name": "saveLeavingDate"
+      }
+    ],
+    "expectedCallBacks": [
+      "kokand",
+      "tashkent"
+    ],
+    "answerType": [
+      "CallBack"
+    ],
+    "nextPage": [
+      "order_seats"
+    ],
+    "message": [
+      "departure.date"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "{EEEE, d MMMM}+0",
+          "callBack": "{d.dd}+0",
+          "buttonType": "Date"
+        }
+      ],
+      [
+        {
+          "textCode": "{EEEE, d MMMM}+1",
+          "callBack": "{d.dd}+1",
+          "buttonType": "Date"
+        }
+      ],
+      [
+        {
+          "textCode": "{EEEE, d MMMM}+2",
+          "callBack": "{d.dd}+2",
+          "buttonType": "Date"
+        }
+      ],
+      [
+        {
+          "textCode": "{EEEE, d MMMM}+3",
+          "callBack": "{d.dd}+3",
+          "buttonType": "Date"
+        }
+      ],
+      [
+        {
+          "textCode": "{EEEE, d MMMM}+4",
+          "callBack": "{d.dd}+4",
+          "buttonType": "Date"
+        }
+      ],
+      [
+        {
+          "textCode": "{EEEE, d MMMM}+5",
+          "callBack": "{d.dd}+5",
+          "buttonType": "Date"
+        }
+      ],
+      [
+        {
+          "textCode": "{EEEE, d MMMM}+6",
+          "callBack": "{d.dd}+6",
+          "buttonType": "Date"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "order_seats",
+    "query": [
+      {
+        "type": "UPDATE",
+        "name": "saveSeatsCount"
+      }
+    ],
+    "expectedCallBacks": [
+      "*"
+    ],
+    "answerType": [
+      "CallBack"
+    ],
+    "nextPage": [
+      "add_comment"
+    ],
+    "message": [
+      "seats"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "btn.seats.minus",
+          "callBack": "minus",
+          "buttonType": "Expression",
+          "isExpression": true
+        },
+        {
+          "textCode": "btn.current.seats",
+          "callBack": "seats_count",
+          "buttonType": "Variable",
+          "clickable": false
+        },
+        {
+          "textCode": "btn.seats.plus",
+          "callBack": "plus",
+          "buttonType": "Expression",
+          "isExpression": true
+        }
+      ],
+      [
+        {
+          "textCode": "btn.save",
+          "callBack": "save_seats_count",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "add_comment",
+    "query": [
+      {
+        "type": "UPDATE",
+        "name": "saveComment"
+      },
+      {
+        "type": "UPDATE",
+        "name": "skipComment"
+      }
+    ],
+    "expectedCallBacks": [
+      "save_seats_count"
+    ],
+    "answerType": [
+      "CallBack",
+      "Text"
+    ],
+    "nextPage": [
+      "check_order"
+    ],
+    "message": [
+      "order.comment"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "btn.skip",
+          "callBack": "skip_comment",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "check_order",
+    "query": [
+      {
+        "type": "SELECT",
+        "name": "orderDetails"
+      },
+      {
+        "type": "UPDATE",
+        "name": "confirmOrder"
+      },
+      {
+        "type": "UPDATE",
+        "name": "cancelOrder"
+      }
+    ],
+    "expectedCallBacks": [
+      "skip_comment"
+    ],
+    "answerType": [
+      "CallBack"
+    ],
+    "nextPage": [
+      "confirm_order",
+      "passenger"
+    ],
+    "message": [
+      "check.order",
+      "order.full.detail"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "btn.confirm",
+          "callBack": "finish_order",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ],
+      [
+        {
+          "textCode": "btn.cancel",
+          "callBack": "cancel_order",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ]
+    ]
+  },
+  {
+    "pageCode": "confirm_order",
+    "query": [],
+    "expectedCallBacks": [
+      "finish_order"
+    ],
+    "answerType": [
+      "CallBack"
+    ],
+    "nextPage": [
+      "passenger"
+    ],
+    "message": [
+      "confirm.order"
+    ],
+    "buttons": [
+      [
+        {
+          "textCode": "btn.main.menu",
+          "callBack": "main.menu",
+          "buttonType": "InlineKeyboardMarkup"
+        }
+      ]
+    ]
+  }
+]

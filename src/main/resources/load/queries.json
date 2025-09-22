@@ -1,0 +1,139 @@
+[
+  {
+    "name": "saveLangToUser",
+    "sql": "UPDATE user_state SET locale = :locale WHERE user_id = :userId",
+    "params": {
+      "locale": "{update.callback.data}",
+      "userId": "{update.chatId}"
+    },
+    "answer": {}
+  },
+  {
+    "name": "saveRoleToUser",
+    "sql": "UPDATE user_state SET role = :role WHERE user_id = :userId",
+    "params": {
+      "role": "{update.callback.data}",
+      "userId": "{update.callback.message.chat.id}"
+    },
+    "answer": {
+      "type": ["CallBack"],
+      "expectedAnswers": ["PASSENGER", "DRIVER"]
+    }
+  },
+  {
+    "name": "createOrder",
+    "sql": "INSERT INTO orders (chat_id, contact_number, current_page_code) VALUES (:chatId, :contactNumber, 'CONTACT_NUMBER')",
+    "params": {
+      "chatId": "{update.chatId}",
+      "contactNumber": "{update.message.contact.phoneNumber}"
+    },
+    "answer": {
+      "type": ["Contact"],
+      "expectedAnswers": []
+    }
+  },
+  {
+    "name": "saveFromCity",
+    "sql": "UPDATE orders SET from_city = CASE WHEN :fromCity IN ('kokand','tashkent') THEN :fromCity ELSE from_city END, current_page_code = 'FROM_CITY' WHERE id = (SELECT id FROM orders WHERE chat_id = :chatId AND current_page_code = 'CONTACT_NUMBER' ORDER BY id DESC LIMIT 1)",
+    "params": {
+      "fromCity": "{update.callback.data}",
+      "chatId": "{update.chatId}"
+    },
+    "answer": {
+      "type": ["CallBack"],
+      "expectedAnswers": ["kokand", "tashkent"]
+    }
+  },
+  {
+    "name": "saveToCity",
+    "sql": "UPDATE orders SET to_city = CASE WHEN :toCity IN ('kokand','tashkent') THEN :toCity ELSE to_city END, current_page_code = 'TO_CITY' WHERE id = (SELECT id FROM orders WHERE chat_id = :chatId AND current_page_code = 'FROM_CITY' ORDER BY id DESC LIMIT 1)",
+    "params": {
+      "toCity": "{update.callback.data}",
+      "chatId": "{update.chatId}"
+    },
+    "answer": {
+      "type": ["CallBack"],
+      "expectedAnswers": ["kokand", "tashkent"]
+    }
+  },
+  {
+    "name": "saveLeavingDate",
+    "sql": "UPDATE orders SET leaving_date = :leavingDate, current_page_code = 'LEAVING_DATE' WHERE id = (SELECT id FROM orders WHERE chat_id = :chatId AND current_page_code = 'TO_CITY' ORDER BY id DESC LIMIT 1)",
+    "params": {
+      "leavingDate": "{update.callback.data}",
+      "chatId": "{update.chatId}"
+    },
+    "answer": {
+      "type": ["CallBack"],
+      "expectedAnswers": ["*"]
+    }
+  },
+  {
+    "name": "saveSeatsCount",
+    "sql": "UPDATE orders o SET passengers_count = v.variable_value, current_page_code = 'SEATS' FROM variables v WHERE v.message_id = :messageId AND o.id = (SELECT id FROM orders WHERE chat_id = :chatId AND current_page_code = 'LEAVING_DATE' ORDER BY id DESC LIMIT 1)",
+    "params": {
+      "chatId": "{update.chatId}",
+      "messageId": "{update.callback.message.id}"
+    },
+    "answer": {
+      "type": ["CallBack"],
+      "expectedAnswers": ["save_seats_count"]
+    }
+  },
+  {
+    "name": "saveComment",
+    "sql": "UPDATE orders SET comment = :comment, current_page_code = 'COMMENT' WHERE id = (SELECT id FROM orders WHERE chat_id = :chatId AND current_page_code = 'SEATS' ORDER BY id DESC LIMIT 1)",
+    "params": {
+      "comment": "{update.message.text}",
+      "chatId": "{update.chatId}"
+    },
+    "answer": {
+      "type": ["Text"],
+      "expectedAnswers": ["*"]
+    }
+  },
+  {
+    "name": "skipComment",
+    "sql": "UPDATE orders SET current_page_code = 'COMMENT' WHERE id = (SELECT id FROM orders WHERE chat_id = :chatId AND current_page_code = 'SEATS' ORDER BY id DESC LIMIT 1)",
+    "params": {
+      "chatId": "{update.chatId}"
+    },
+    "answer": {
+      "type": ["CallBack"],
+      "expectedAnswers": ["skip_comment"]
+    }
+  },
+  {
+    "name": "orderDetails",
+    "sql": "SELECT * FROM orders o WHERE o.chat_id = :chatId ORDER BY o.id DESC LIMIT 1",
+    "params": {
+      "chatId": "{update.chatId}"
+    },
+    "answer": {
+      "type": ["CallBack", "Text"],
+      "expectedAnswers": ["*"]
+    }
+  },
+  {
+    "name": "confirmOrder",
+    "sql": "UPDATE orders SET current_page_code = 'CONFIRMED' WHERE id = (SELECT id FROM orders WHERE chat_id = :chatId AND current_page_code = 'COMMENT' ORDER BY id DESC LIMIT 1)",
+    "params": {
+      "chatId": "{update.chatId}"
+    },
+    "answer": {
+      "type": ["CallBack"],
+      "expectedAnswers": ["finish_order"]
+    }
+  },
+  {
+    "name": "cancelOrder",
+    "sql": "UPDATE orders SET current_page_code = 'CANCELLED' WHERE id = (SELECT id FROM orders WHERE chat_id = :chatId AND current_page_code = 'COMMENT' ORDER BY id DESC LIMIT 1)",
+    "params": {
+      "chatId": "{update.chatId}"
+    },
+    "answer": {
+      "type": ["CallBack"],
+      "expectedAnswers": ["cancel_order"]
+    }
+  }
+]

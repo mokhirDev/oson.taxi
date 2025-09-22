@@ -1,10 +1,35 @@
-# IntelliJ IDEA
+### IntelliJ IDEA ###
 .idea/
 *.iml
+*.iws
+out/
+classes/
 
-# Maven build
+### Maven ###
 target/
+!.mvn/wrapper/maven-wrapper.jar
 
-# Logs
+### Gradle ###
+.gradle/
+build/
+
+### Logs ###
 *.log
-/pom.xml
+logs/
+
+### OS files ###
+.DS_Store
+Thumbs.db
+
+### Spring Boot ###
+HELP.md
+application-*.yml
+application-*.properties
+
+### Ignore all tests ###
+src/test/
+
+### Maven Wrapper (исключать по желанию) ###
+# Если не нужен в репозитории:
+mvnw
+mvnw.cmd
