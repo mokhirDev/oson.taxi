@@ -25,4 +25,25 @@ public enum InputType {
         }
         return null;
     }
+
+    public static String extractValue(Update update, InputType inputType) {
+        switch (inputType) {
+            case TEXT -> {
+                if (update.hasMessage() && update.getMessage().hasText()) {
+                    return update.getMessage().getText();
+                }
+            }
+            case CALLBACK -> {
+                if (update.hasCallbackQuery()) {
+                    return update.getCallbackQuery().getData();
+                }
+            }
+            case CONTACT -> {
+                if (update.hasMessage() && update.getMessage().hasContact()) {
+                    return update.getMessage().getContact().getPhoneNumber();
+                }
+            }
+        }
+        return null;
+    }
 }

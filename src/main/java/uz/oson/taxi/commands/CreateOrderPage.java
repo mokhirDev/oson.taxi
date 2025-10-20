@@ -5,8 +5,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageEnum;
+import uz.oson.taxi.entity.enums.PageCodeEnum;
+import uz.oson.taxi.entity.enums.PageMessageEnum;
 import uz.oson.taxi.service.UserStateService;
 import uz.oson.taxi.util.KeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
@@ -21,20 +23,6 @@ public class CreateOrderPage implements BotPage {
     private final UserStateService userService;
 
     @Override
-    public String getName() {
-        return PageEnum.CREATE_ORDER.getPageName();
-    }
-
-    @Override
-    public boolean supports(Update update) {
-        return update.hasCallbackQuery()
-                && PageEnum.CREATE_ORDER.name().toLowerCase()
-                .equals(
-                        update.getCallbackQuery().getData()
-                );
-    }
-
-    @Override
     public List<BotApiMethod<?>> handle(Update update) {
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
         LocaleEnum localeEnum = userService.getUser(chatId).getLocale();
@@ -42,10 +30,15 @@ public class CreateOrderPage implements BotPage {
         return List.of(
                 SendMessage.builder()
                         .chatId(chatId.toString())
-                        .text(messageFactory.getPageMessage(PageEnum.SHARE_CONTACT, localeEnum))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.SHARE_CONTACT, localeEnum))
                         .replyMarkup(keyboardFactory.shareContactKeyboard(localeEnum))
                         .build()
         );
+    }
+
+    @Override
+    public boolean isValid(Update update) {
+        return PageCodeEnum.isValid(PageCodeEnum.CREATE_ORDER_CODE, update);
     }
 
 }

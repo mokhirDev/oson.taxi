@@ -5,9 +5,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import uz.oson.taxi.entity.enums.AliasesEnum;
+import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageEnum;
+import uz.oson.taxi.entity.enums.PageCodeEnum;
+import uz.oson.taxi.entity.enums.PageMessageEnum;
 import uz.oson.taxi.util.MessageFactory;
 import uz.oson.taxi.service.UserStateService;
 import uz.oson.taxi.util.KeyboardFactory;
@@ -22,23 +23,6 @@ public class LangPage implements BotPage {
     private final KeyboardFactory keyboardFactory;
 
     @Override
-    public String getName() {
-        return PageEnum.LANG.getPageName();
-    }
-
-    @Override
-    public boolean supports(Update update) {
-        return update.hasCallbackQuery()
-                && getAliases()
-                .contains(update.getCallbackQuery().getData());
-    }
-
-    @Override
-    public List<String> getAliases() {
-        return AliasesEnum.LANG.getValues();
-    }
-
-    @Override
     public List<BotApiMethod<?>> handle(Update update) {
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
         String language = update.getCallbackQuery().getData();
@@ -47,7 +31,7 @@ public class LangPage implements BotPage {
         return List.of(
                 SendMessage.builder()
                         .chatId(chatId.toString())
-                        .text(messageFactory.getPageMessage(PageEnum.ROLE, localeEnum))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.ROLE, localeEnum))
                         .replyMarkup(
                                 keyboardFactory
                                         .roleKeyboard(localeEnum)
@@ -58,5 +42,10 @@ public class LangPage implements BotPage {
 
     void setUserLocale(LocaleEnum language, Long chatId) {
         userService.setLang(language, chatId);
+    }
+
+    @Override
+    public boolean isValid(Update update) {
+        return PageCodeEnum.isValid(PageCodeEnum.LANG_CODE, update);
     }
 }

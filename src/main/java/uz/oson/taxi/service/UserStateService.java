@@ -2,11 +2,10 @@ package uz.oson.taxi.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.UserState;
-import uz.oson.taxi.entity.enums.UserTypeEnum;
-import uz.oson.taxi.entity.enums.LocaleEnum;
+import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.repository.UserStateRepository;
 
 import java.util.Optional;
@@ -33,10 +32,21 @@ public class UserStateService {
         return userStateRepository.save(userState);
     }
 
+    public Long getChatId(Update update) {
+        InputType inputType = InputType.getInputType(update);
+        if (inputType == null) return null;
+        return switch (inputType) {
+            case TEXT, CONTACT -> update.getMessage().getChatId();
+            case CALLBACK -> update.getCallbackQuery().getFrom().getId();
+            default -> null;
+        };
+    }
+
     void setDefaultCredentials(UserState entity) {
         entity.setLocale(LocaleEnum.UNKNOWN);
         entity.setRole(UserTypeEnum.GUEST);
         entity.setLastMessageId(0);
+        entity.setCurrentPageCode(PageCodeEnum.START_CODE);
     }
 
     public void setLang(LocaleEnum localeEnum, Long chatId) {
@@ -54,8 +64,11 @@ public class UserStateService {
 
     public void setRole(Update update, Long chatId) {
         UserState entity;
-        String role = update.getCallbackQuery().getData();
-        UserTypeEnum userTypeEnum = UserTypeEnum.valueOf(role.toUpperCase());
+        String role = update.getCallbackQuery().getData().toUpperCase();
+        if (!UserTypeEnum.existRole(role)) {
+            return;
+        }
+        UserTypeEnum userTypeEnum = UserTypeEnum.valueOf(role);
         Optional<UserState> userState = userStateRepository.findByChatId(chatId);
         if (userState.isPresent()) {
             userState.get().setRole(userTypeEnum);
@@ -74,5 +87,16 @@ public class UserStateService {
             userCacheService.put(userState);
         }
         return userState;
+    }
+
+    public PageCodeEnum getCurrentPage(Long chatId) {
+        UserState user = getUser(chatId);
+        return user.getCurrentPageCode();
+    }
+
+    public void setCurrentPage(PageCodeEnum pageMessageEnum, Long chatId) {
+        UserState user = getUser(chatId);
+        user.setCurrentPageCode(pageMessageEnum);
+        userCacheService.put(user);
     }
 }

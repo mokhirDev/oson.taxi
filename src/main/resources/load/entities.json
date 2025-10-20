@@ -34,7 +34,7 @@
         { "name": "leaving_date", "type": "VARCHAR(50)" },
         { "name": "from_city", "type": "VARCHAR(100)" },
         { "name": "to_city", "type": "VARCHAR(100)" },
-        { "name": "passengers_count", "type": "INT" },
+        { "name": "seats_count", "type": "INT" },
         { "name": "latitude", "type": "INT" },
         { "name": "longitude", "type": "INT" },
         { "name": "client_id", "type": "BIGINT", "foreignKey": "user_state.id" }

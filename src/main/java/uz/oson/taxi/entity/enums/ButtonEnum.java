@@ -30,6 +30,8 @@ public enum ButtonEnum {
     CONFIRM_ORDER("btn.confirm", "confirm_order", ButtonTypeEnum.INLINE),
     CANCEL_ORDER("btn.cancel", "cancel_order", ButtonTypeEnum.INLINE),
 
+    SUCCESS_ORDER("btn.main.menu", "client:main_menu", ButtonTypeEnum.INLINE),
+
     FROM_KOKAND("btn.city.kokand", "from:kokand", ButtonTypeEnum.INLINE),
     TO_KOKAND("btn.city.kokand", "to:kokand", ButtonTypeEnum.INLINE),
     FROM_TASHKENT("btn.city.tashkent", "from:tashkent", ButtonTypeEnum.INLINE),

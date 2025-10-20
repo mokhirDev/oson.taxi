@@ -6,8 +6,10 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageEnum;
+import uz.oson.taxi.entity.enums.PageCodeEnum;
+import uz.oson.taxi.entity.enums.PageMessageEnum;
 import uz.oson.taxi.service.OrderService;
 import uz.oson.taxi.service.UserStateService;
 import uz.oson.taxi.util.KeyboardFactory;
@@ -24,25 +26,15 @@ public class ShareContactPage implements BotPage {
     private final OrderService orderService;
 
     @Override
-    public String getName() {
-        return PageEnum.SHARE_CONTACT.getPageName();
-    }
-
-    @Override
-    public boolean supports(Update update) {
-        return update.hasMessage() && update.getMessage().hasContact();
-    }
-
-    @Override
     public List<BotApiMethod<?>> handle(Update update) {
         Long chatId = update.getMessage().getChatId();
         LocaleEnum localeEnum = userService.getUser(chatId).getLocale();
         orderService.createOrder(update);
 
         return List.of(
-                buildSendMessage(chatId, messageFactory.getPageMessage(PageEnum.CONTACT_RECEIVED, localeEnum),
+                buildSendMessage(chatId, messageFactory.getPageMessage(PageMessageEnum.CONTACT_RECEIVED, localeEnum),
                         keyboardFactory.cleanReplyKeyboard()),
-                buildSendMessage(chatId, messageFactory.getPageMessage(PageEnum.ORDER_FROM, localeEnum),
+                buildSendMessage(chatId, messageFactory.getPageMessage(PageMessageEnum.ORDER_FROM, localeEnum),
                         keyboardFactory.fromCityKeyboard(localeEnum))
         );
     }
@@ -53,6 +45,11 @@ public class ShareContactPage implements BotPage {
                 .text(text)
                 .replyMarkup(keyboard)
                 .build();
+    }
+
+    @Override
+    public boolean isValid(Update update) {
+        return PageCodeEnum.isValid(PageCodeEnum.SHARE_CONTACT_CODE, update);
     }
 
 }

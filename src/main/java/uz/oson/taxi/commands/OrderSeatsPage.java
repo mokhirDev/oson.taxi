@@ -5,11 +5,12 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.Orders;
-import uz.oson.taxi.entity.enums.AliasesEnum;
 import uz.oson.taxi.entity.enums.ButtonEnum;
 import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageEnum;
+import uz.oson.taxi.entity.enums.PageCodeEnum;
+import uz.oson.taxi.entity.enums.PageMessageEnum;
 import uz.oson.taxi.service.OrdersCacheService;
 import uz.oson.taxi.service.UserStateService;
 import uz.oson.taxi.util.KeyboardFactory;
@@ -27,22 +28,6 @@ public class OrderSeatsPage implements BotPage {
     private final UserStateService userService;
 
     @Override
-    public String getName() {
-        return PageEnum.ORDER_SEATS.getPageName();
-    }
-
-    @Override
-    public boolean supports(Update update) {
-        return update.hasCallbackQuery()
-                && getAliases().contains(update.getCallbackQuery().getData());
-    }
-
-    @Override
-    public List<String> getAliases() {
-        return AliasesEnum.SEATS.getValues();
-    }
-
-    @Override
     public List<BotApiMethod<?>> handle(Update update) {
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
         LocaleEnum locale = userService.getUser(chatId).getLocale();
@@ -51,7 +36,7 @@ public class OrderSeatsPage implements BotPage {
         return List.of(
                 SendMessage.builder()
                         .chatId(chatId.toString())
-                        .text(messageFactory.getPageMessage(PageEnum.ORDER_SEATS, locale))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.ORDER_SEATS, locale))
                         .replyMarkup(keyboardFactory.seatsKeyboard(locale, seatsCount))
                         .build()
         );
@@ -67,7 +52,7 @@ public class OrderSeatsPage implements BotPage {
         }
         switch (buttonEnum) {
             case MINUS -> {
-                if (seatsCount > 0 && seatsCount <= 4) {
+                if (seatsCount > 1 && seatsCount <= 4) {
                     seatsCount--;
                 }
             }
@@ -82,8 +67,9 @@ public class OrderSeatsPage implements BotPage {
         return seatsCount;
     }
 
-    void setSeatsCountLocale(int count) {
-
+    @Override
+    public boolean isValid(Update update) {
+        return PageCodeEnum.isValid(PageCodeEnum.SEATS_CODE, update);
     }
 
 }

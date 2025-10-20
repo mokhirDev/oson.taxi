@@ -1,7 +1,12 @@
 package uz.oson.taxi.entity.enums;
 
 import lombok.Getter;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.*;
+import uz.oson.taxi.commands.interfaces.BotPage;
+
+import java.util.Objects;
+
 @Getter
 public enum PageCodeEnum {
 
@@ -29,5 +34,13 @@ public enum PageCodeEnum {
         this.inputType = inputType;
         this.codeRegEx = codeRegEx;
         this.clazz = clazz;
+    }
+
+    public static boolean isValid(PageCodeEnum pageCodeEnum, Update update) {
+        InputType inputType = InputType.getInputType(update);
+        assert inputType != null;
+        String extractedValue = InputType.extractValue(update, inputType);
+        return pageCodeEnum.getInputType().equals(inputType) &&
+                Objects.requireNonNull(extractedValue).trim().matches(pageCodeEnum.getCodeRegEx().getRegEx());
     }
 }

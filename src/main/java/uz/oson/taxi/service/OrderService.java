@@ -27,19 +27,12 @@ public class OrderService {
         );
     }
 
-    public void setCacheOrderFrom(Update update) {
-        Long chatId = update.getCallbackQuery().getMessage().getChatId();
-        String data = update.getCallbackQuery().getData();
-        Orders orders = ordersCacheService.get(chatId);
-        orders.setFrom_city(data);
-        ordersCacheService.put(orders);
+    public Orders findOrderByChatId(Long chatId) {
+        return ordersCacheService.get(chatId);
     }
 
-    public void setCacheOrderTo(Update update) {
-        Long chatId = update.getCallbackQuery().getMessage().getChatId();
-        String data = update.getCallbackQuery().getData();
-        Orders orders = ordersCacheService.get(chatId);
-        orders.setTo_city(data);
-        ordersCacheService.put(orders);
+    public void updateOrder(Orders order) {
+        ordersCacheService.put(order);
     }
+
 }

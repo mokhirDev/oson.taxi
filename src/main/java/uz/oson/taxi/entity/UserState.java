@@ -2,6 +2,8 @@ package uz.oson.taxi.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import uz.oson.taxi.entity.enums.PageCodeEnum;
+import uz.oson.taxi.entity.enums.PageMessageEnum;
 import uz.oson.taxi.entity.enums.UserTypeEnum;
 import uz.oson.taxi.entity.enums.LocaleEnum;
 
@@ -27,7 +29,8 @@ public class UserState {
     @Column(name = "role")
     private UserTypeEnum role;
     @Column(name = "current_page_code")
-    private String currentPageCode;
+    @Enumerated(EnumType.STRING)
+    private PageCodeEnum currentPageCode;
     @Column(name = "last_message_id")
     private Integer lastMessageId;
 }

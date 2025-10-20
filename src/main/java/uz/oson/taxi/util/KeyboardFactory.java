@@ -101,13 +101,13 @@ public class KeyboardFactory {
 
     public InlineKeyboardMarkup fromCityKeyboard(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.FROM_KOKAND, ButtonEnum.TO_TASHKENT)
+                inlineRow(localeEnum, ButtonEnum.FROM_KOKAND, ButtonEnum.FROM_TASHKENT)
         ));
     }
 
     public InlineKeyboardMarkup toCityKeyboard(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.FROM_KOKAND, ButtonEnum.TO_TASHKENT)
+                inlineRow(localeEnum, ButtonEnum.TO_KOKAND, ButtonEnum.TO_TASHKENT)
         ));
     }
 
@@ -117,10 +117,16 @@ public class KeyboardFactory {
         ));
     }
 
-    public InlineKeyboardMarkup confirmOrderKeyboard(LocaleEnum localeEnum) {
+    public InlineKeyboardMarkup checkOrderKeyboard(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
                 inlineRow(localeEnum, ButtonEnum.CONFIRM_ORDER),
                 inlineRow(localeEnum, ButtonEnum.CANCEL_ORDER)
+        ));
+    }
+
+    public InlineKeyboardMarkup confirmOrderKeyboard(LocaleEnum localeEnum) {
+        return KeyboardUtil.inlineKeyboard(List.of(
+                inlineRow(localeEnum, ButtonEnum.SUCCESS_ORDER)
         ));
     }
 

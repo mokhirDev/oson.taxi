@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Getter
-public enum PageEnum {
+public enum PageMessageEnum {
 
     START("start.greeting"),
     LANG("choose.language"),
@@ -21,17 +21,13 @@ public enum PageEnum {
     ORDER_TO("arrive.to"),
     ORDER_DATE("departure.date"),
     ORDER_SEATS("seats"),
-    ADD_COMMENT("order.comment"),
+    COMMENT("order.comment"),
     CHECK_ORDER("check.order", "order.full.detail"),
     CONFIRM_ORDER("confirm.order");
 
     private final List<String> messageCodes;
 
-    public String getPageName() {
-        return this.name().toLowerCase();
-    }
-
-    PageEnum(String... messageCodes) {
+    PageMessageEnum(String... messageCodes) {
         this.messageCodes = Arrays.asList(messageCodes);
     }
 }

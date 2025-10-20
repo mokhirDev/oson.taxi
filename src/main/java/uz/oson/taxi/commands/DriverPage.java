@@ -6,22 +6,13 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import uz.oson.taxi.entity.enums.PageEnum;
+import uz.oson.taxi.commands.interfaces.BotPage;
+import uz.oson.taxi.entity.enums.PageCodeEnum;
 
 import java.util.List;
 
 @Component
 public class DriverPage implements BotPage {
-    @Override
-    public String getName() {
-        return PageEnum.DRIVER.getPageName();
-    }
-
-    @Override
-    public boolean supports(Update update) {
-        return update.hasCallbackQuery()
-                && "driver".equals(update.getCallbackQuery().getData());
-    }
 
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
@@ -49,5 +40,10 @@ public class DriverPage implements BotPage {
                         .replyMarkup(keyboard)
                         .build()
         );
+    }
+
+    @Override
+    public boolean isValid(Update update) {
+        return PageCodeEnum.isValid(PageCodeEnum.DRIVER_CODE, update);
     }
 }

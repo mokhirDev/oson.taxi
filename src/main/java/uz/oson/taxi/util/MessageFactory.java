@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uz.oson.taxi.entity.enums.ButtonEnum;
 import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageEnum;
+import uz.oson.taxi.entity.enums.PageMessageEnum;
 import uz.oson.taxi.service.LocalizationService;
 
 import java.util.Locale;
@@ -14,12 +14,12 @@ import java.util.Locale;
 public class MessageFactory {
     private final LocalizationService localeService;
 
-    public String getPageMessage(PageEnum pageEnum, LocaleEnum localeEnum) {
+    public String getPageMessage(PageMessageEnum pageMessageEnum, LocaleEnum localeEnum) {
         if (!localeEnum.equals(LocaleEnum.UNKNOWN)) {
             Locale locale = Locale.of(localeEnum.name());
-            return groupingMessages(pageEnum, locale).toString();
+            return groupingMessages(pageMessageEnum, locale).toString();
         } else {
-            return combineAllLanguages(pageEnum);
+            return combineAllLanguages(pageMessageEnum);
         }
     }
 
@@ -28,15 +28,15 @@ public class MessageFactory {
         return localeService.getLocaleText(buttonEnum.getButtonTextCode(), locale);
     }
 
-    private String combineAllLanguages(PageEnum pageEnum) {
-        return String.valueOf(groupingMessages(pageEnum, Locale.of(LocaleEnum.UZ.getName()))) +
-                groupingMessages(pageEnum, Locale.of(LocaleEnum.RU.getName())) +
-                groupingMessages(pageEnum, Locale.of(LocaleEnum.EN.getName()));
+    private String combineAllLanguages(PageMessageEnum pageMessageEnum) {
+        return String.valueOf(groupingMessages(pageMessageEnum, Locale.of(LocaleEnum.UZ.getName()))) +
+                groupingMessages(pageMessageEnum, Locale.of(LocaleEnum.RU.getName())) +
+                groupingMessages(pageMessageEnum, Locale.of(LocaleEnum.EN.getName()));
     }
 
-    private StringBuilder groupingMessages(PageEnum pageEnum, Locale locale) {
+    private StringBuilder groupingMessages(PageMessageEnum pageMessageEnum, Locale locale) {
         StringBuilder groupedMessages = new StringBuilder();
-        for (String code : pageEnum.getMessageCodes()) {
+        for (String code : pageMessageEnum.getMessageCodes()) {
             groupedMessages.append(localeService.getLocaleText(code, locale));
             groupedMessages.append("\n");
         }

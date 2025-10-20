@@ -70,7 +70,7 @@
   },
   {
     "name": "saveSeatsCount",
-    "sql": "UPDATE orders o SET passengers_count = v.variable_value, current_page_code = 'SEATS' FROM variables v WHERE v.message_id = :messageId AND o.id = (SELECT id FROM orders WHERE chat_id = :chatId AND current_page_code = 'LEAVING_DATE' ORDER BY id DESC LIMIT 1)",
+    "sql": "UPDATE orders o SET seats_count = v.variable_value, current_page_code = 'SEATS' FROM variables v WHERE v.message_id = :messageId AND o.id = (SELECT id FROM orders WHERE chat_id = :chatId AND current_page_code = 'LEAVING_DATE' ORDER BY id DESC LIMIT 1)",
     "params": {
       "chatId": "{update.chatId}",
       "messageId": "{update.callback.message.id}"

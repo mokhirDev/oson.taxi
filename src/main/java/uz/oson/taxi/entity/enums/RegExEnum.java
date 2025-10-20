@@ -7,7 +7,7 @@ public enum RegExEnum {
 
     StartCode("^/start$"),
     LangCode("^(uz|ru|en)$"),
-    PassengerCode("^(passenger)$"),
+    PassengerCode("^(passenger|client:.*)$"),
     DriverCode("^(driver)$"),
     CreateOrderCode("^(create_order)$"),
     MyOrdersCode("^(my_orders)$"),
