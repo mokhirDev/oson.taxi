@@ -27,8 +27,8 @@ public class OrdersCacheService {
         orderRedisTemplate.opsForValue().set(keyPrefix + order.getChatId(), order, Duration.ofHours(ttlHours));
     }
 
-    public void evict(Long orderId) {
-        orderRedisTemplate.delete(keyPrefix + orderId);
+    public void evict(Long chatId) {
+        orderRedisTemplate.delete(keyPrefix + chatId);
     }
 
     public boolean exists(Long orderId) {

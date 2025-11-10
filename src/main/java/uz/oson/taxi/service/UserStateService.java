@@ -3,11 +3,11 @@ package uz.oson.taxi.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.UserState;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.repository.UserStateRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -46,7 +46,12 @@ public class UserStateService {
         entity.setLocale(LocaleEnum.UNKNOWN);
         entity.setRole(UserTypeEnum.GUEST);
         entity.setLastMessageId(0);
-        entity.setCurrentPageCode(PageCodeEnum.START_CODE);
+        entity.setBotPageStage(BotPageStageEnum.START);
+        entity.setUserName(null);
+        entity.setFirstName(null);
+        entity.setSecondName(null);
+        entity.setPhoneNumber(null);
+        entity.setIsVerified(Verification.UNVERIFIED);
     }
 
     public void setLang(LocaleEnum localeEnum, Long chatId) {
@@ -89,14 +94,65 @@ public class UserStateService {
         return userState;
     }
 
-    public PageCodeEnum getCurrentPage(Long chatId) {
-        UserState user = getUser(chatId);
-        return user.getCurrentPageCode();
+    public void setFirstName(Update update) {
+        Long chatId = getChatId(update);
+        InputType inputType = InputType.getInputType(update);
+        if (inputType == null) return;
+        if (inputType.equals(InputType.TEXT)) {
+            UserState cache = userCacheService.get(chatId);
+            if (cache == null) {
+                return;
+            }
+            cache.setFirstName(update.getMessage().getText());
+            userCacheService.put(cache);
+        }
     }
 
-    public void setCurrentPage(PageCodeEnum pageMessageEnum, Long chatId) {
+    public BotPageStageEnum getCurrentPage(Long chatId) {
         UserState user = getUser(chatId);
-        user.setCurrentPageCode(pageMessageEnum);
+        BotPageStageEnum botPageStage = user.getBotPageStage();
+        if (botPageStage == null) {
+            botPageStage = BotPageStageEnum.START;
+            setCurrentPage(botPageStage, chatId);
+        }
+        return botPageStage;
+    }
+
+    public void setCurrentPage(BotPageStageEnum pageMessageEnum, Long chatId) {
+        UserState user = getUser(chatId);
+        user.setBotPageStage(pageMessageEnum);
         userCacheService.put(user);
+    }
+
+    public void setSecondName(Update update) {
+        Long chatId = getChatId(update);
+        InputType inputType = InputType.getInputType(update);
+        if (inputType == null) return;
+        if (inputType.equals(InputType.TEXT)) {
+            UserState cache = userCacheService.get(chatId);
+            if (cache == null) {
+                return;
+            }
+            cache.setSecondName(update.getMessage().getText());
+            userStateRepository.save(cache);
+        }
+    }
+
+    public LocaleEnum getUserLocale(Update update) {
+        if (PageCommandEnum.isValid(List.of(PageCommandEnum.LANG_CODE), update)) {
+            String language = update.getCallbackQuery().getData();
+            return LocaleEnum.getLocaleEnum(language);
+        }
+        LocaleEnum locale = userCacheService.get(getChatId(update)).getLocale();
+        if (locale != null) {
+            return locale;
+        }
+        return LocaleEnum.UNKNOWN;
+    }
+
+    public void pending(UserState user) {
+        user.setIsVerified(Verification.PENDING);
+        userCacheService.put(user);
+        userStateRepository.save(user);
     }
 }

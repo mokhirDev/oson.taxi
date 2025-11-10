@@ -1,4 +1,4 @@
-package uz.oson.taxi.commands;
+package uz.oson.taxi.commands.manual;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -6,8 +6,9 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
+import uz.oson.taxi.entity.enums.BotPageStageEnum;
 import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageCodeEnum;
+import uz.oson.taxi.entity.enums.PageCommandEnum;
 import uz.oson.taxi.entity.enums.PageMessageEnum;
 import uz.oson.taxi.util.MessageFactory;
 import uz.oson.taxi.service.UserStateService;
@@ -24,17 +25,17 @@ public class LangPage implements BotPage {
 
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = update.getCallbackQuery().getMessage().getChatId();
-        String language = update.getCallbackQuery().getData();
-        LocaleEnum localeEnum = LocaleEnum.getLocaleEnum(language);
-        setUserLocale(localeEnum, chatId);
+        Long chatId = userService.getChatId(update);
+        LocaleEnum userLocale = userService.getUserLocale(update);
+        setUserLocale(userLocale, chatId);
+        userService.setCurrentPage(BotPageStageEnum.ROLE, chatId);
         return List.of(
                 SendMessage.builder()
                         .chatId(chatId.toString())
-                        .text(messageFactory.getPageMessage(PageMessageEnum.ROLE, localeEnum))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.ROLE, userLocale))
                         .replyMarkup(
                                 keyboardFactory
-                                        .roleKeyboard(localeEnum)
+                                        .roleKeyboard(userLocale)
                         )
                         .build()
         );
@@ -46,6 +47,11 @@ public class LangPage implements BotPage {
 
     @Override
     public boolean isValid(Update update) {
-        return PageCodeEnum.isValid(PageCodeEnum.LANG_CODE, update);
+        Long chatId = userService.getChatId(update);
+        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
+        if (currentPage == BotPageStageEnum.LANGUAGE) {
+            return PageCommandEnum.isValid(List.of(PageCommandEnum.LANG_CODE), update);
+        }
+        return false;
     }
 }

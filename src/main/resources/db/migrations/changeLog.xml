@@ -5,7 +5,9 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <include file="/db/migrations/logs/create-user-state.xml"/>
-    <include file="/db/migrations/logs/create-orders.xml"/>
-    <include file="/db/migrations/logs/create-variables.xml"/>
+    <include file="/db/migrations/logs/v1.create-user-state.xml"/>
+    <include file="/db/migrations/logs/v2.create-orders.xml"/>
+    <include file="/db/migrations/logs/v3.create-variables.xml"/>
+    <include file="/db/migrations/logs/v4.alter-user-state.xml"/>
+    <include file="/db/migrations/logs/v5.alter-user-state.xml"/>
 </databaseChangeLog>

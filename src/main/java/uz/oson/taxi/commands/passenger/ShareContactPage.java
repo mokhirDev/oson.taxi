@@ -1,4 +1,4 @@
-package uz.oson.taxi.commands;
+package uz.oson.taxi.commands.passenger;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -7,8 +7,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import uz.oson.taxi.commands.interfaces.BotPage;
+import uz.oson.taxi.entity.enums.BotPageStageEnum;
 import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageCodeEnum;
+import uz.oson.taxi.entity.enums.PageCommandEnum;
 import uz.oson.taxi.entity.enums.PageMessageEnum;
 import uz.oson.taxi.service.OrderService;
 import uz.oson.taxi.service.UserStateService;
@@ -27,9 +28,10 @@ public class ShareContactPage implements BotPage {
 
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = update.getMessage().getChatId();
+        Long chatId = userService.getChatId(update);
         LocaleEnum localeEnum = userService.getUser(chatId).getLocale();
-        orderService.createOrder(update);
+        orderService.createOrderInCache(update);
+        userService.setCurrentPage(BotPageStageEnum.SHARE_CONTACT, chatId);
 
         return List.of(
                 buildSendMessage(chatId, messageFactory.getPageMessage(PageMessageEnum.CONTACT_RECEIVED, localeEnum),
@@ -49,7 +51,12 @@ public class ShareContactPage implements BotPage {
 
     @Override
     public boolean isValid(Update update) {
-        return PageCodeEnum.isValid(PageCodeEnum.SHARE_CONTACT_CODE, update);
+        Long chatId = userService.getChatId(update);
+        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
+        if (currentPage == BotPageStageEnum.CREATE_ORDER) {
+            return PageCommandEnum.isValid(List.of(PageCommandEnum.SHARE_CONTACT_CODE), update);
+        }
+        return false;
     }
 
 }

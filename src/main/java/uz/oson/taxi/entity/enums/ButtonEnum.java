@@ -20,6 +20,8 @@ public enum ButtonEnum {
     PASSENGER_BUTTON("btn.passenger", "passenger", ButtonTypeEnum.INLINE),
     BACK_BUTTON("btn.back", "back", ButtonTypeEnum.INLINE),
 
+    BECOME_DRIVER("become.driver", "become_driver", ButtonTypeEnum.INLINE),
+    SEARCH_PASSENGERS("search.passengers", "search_passengers", ButtonTypeEnum.INLINE),
     JOIN_GROUP("join.to.group", "join_to_group", ButtonTypeEnum.INLINE),
 
     CREATE_ORDER("btn.create.order", "create_order", ButtonTypeEnum.INLINE),
@@ -30,13 +32,12 @@ public enum ButtonEnum {
     CONFIRM_ORDER("btn.confirm", "confirm_order", ButtonTypeEnum.INLINE),
     CANCEL_ORDER("btn.cancel", "cancel_order", ButtonTypeEnum.INLINE),
 
-    SUCCESS_ORDER("btn.main.menu", "client:main_menu", ButtonTypeEnum.INLINE),
+    HOME("btn.main.menu", "main_menu", ButtonTypeEnum.INLINE),
+    BACK("btn.back", "back", ButtonTypeEnum.INLINE),
+    LANGUAGE("btn.language", "language", ButtonTypeEnum.INLINE),
 
-    FROM_KOKAND("btn.city.kokand", "from:kokand", ButtonTypeEnum.INLINE),
-    TO_KOKAND("btn.city.kokand", "to:kokand", ButtonTypeEnum.INLINE),
-    FROM_TASHKENT("btn.city.tashkent", "from:tashkent", ButtonTypeEnum.INLINE),
-    TO_TASHKENT("btn.city.tashkent", "to:tashkent", ButtonTypeEnum.INLINE),
-
+    KOKAND("kokand", "kokand", ButtonTypeEnum.INLINE),
+    TASHKENT("tashkent", "tashkent", ButtonTypeEnum.INLINE),
     // ---------------- Reply Buttons ----------------
     SHARE_CONTACT("btn.share.contact", "share_contact", ButtonTypeEnum.REPLY),
     SHARE_CONTACT_REMOVE("btn.share.contact", "share_contact", ButtonTypeEnum.REPLY);

@@ -12,8 +12,12 @@ public enum PageMessageEnum {
     START("start.greeting"),
     LANG("choose.language"),
     ROLE("choose.option"),
-    DRIVER("driver.menu"),
-    PASSENGER("passenger.menu"),
+    DRIVER_MENU("driver.menu"),
+    PENDING_VERIFICATION("driver.menu"),
+    WRITE_NAME("write.name"),
+    WRITE_SECOND_NAME("write.second.name"),
+    DRIVER_REGISTRATION_DONE("registration.driver.completed"),
+    PASSENGER_MENU("passenger.menu"),
     CREATE_ORDER("create.order"),
     SHARE_CONTACT("share.contact"),
     CONTACT_RECEIVED("contact.received"),
@@ -23,7 +27,10 @@ public enum PageMessageEnum {
     ORDER_SEATS("seats"),
     COMMENT("order.comment"),
     CHECK_ORDER("check.order", "order.full.detail"),
-    CONFIRM_ORDER("confirm.order");
+    CONFIRM_ORDER("confirm.order"),
+    LINE("line"),
+    MY_ORDERS("my.orders"),
+    ORDER("order"),;
 
     private final List<String> messageCodes;
 

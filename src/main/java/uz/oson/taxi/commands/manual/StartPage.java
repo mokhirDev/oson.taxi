@@ -1,4 +1,4 @@
-package uz.oson.taxi.commands;
+package uz.oson.taxi.commands.manual;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,6 @@ import uz.oson.taxi.service.UserStateService;
 import uz.oson.taxi.util.KeyboardFactory;
 
 import java.util.List;
-import java.util.Objects;
 
 
 @Component
@@ -24,27 +23,39 @@ public class StartPage implements BotPage {
 
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = update.getMessage().getChatId();
-        userService.setNewCredentials(chatId);
-        userService.setCurrentPage(PageCodeEnum.LANG_CODE, chatId);
+        Long chatId = userService.getChatId(update);
+        if (PageCommandEnum.isValid(List.of(PageCommandEnum.START_CODE), update)) {
+            userService.setNewCredentials(chatId);
+        }
+        userService.setCurrentPage(BotPageStageEnum.LANGUAGE, chatId);
+        LocaleEnum userLocale = userService.getUserLocale(update);
         return List.of(
                 SendMessage.builder()
                         .chatId(chatId.toString())
                         .replyMarkup(keyboardFactory.cleanReplyKeyboard())
-                        .text(messageFactory.getPageMessage(PageMessageEnum.START, LocaleEnum.UNKNOWN))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.START, userLocale))
                         .build(),
                 SendMessage
                         .builder()
                         .chatId(chatId)
                         .replyMarkup(keyboardFactory.languageKeyboard())
-                        .text(messageFactory.getPageMessage(PageMessageEnum.LANG, LocaleEnum.UNKNOWN))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.LANG, userLocale))
                         .build()
         );
     }
 
     @Override
     public boolean isValid(Update update) {
-        return PageCodeEnum.isValid(PageCodeEnum.START_CODE, update);
+        Long chatId = userService.getChatId(update);
+        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
+        if (PageCommandEnum.isValid(List.of(PageCommandEnum.START_CODE), update)) {
+            return true;
+        }
+
+        if (currentPage == BotPageStageEnum.ROLE) {
+            return PageCommandEnum.isValid(List.of(PageCommandEnum.BACK_CODE), update);
+        }
+        return false;
     }
 
 }

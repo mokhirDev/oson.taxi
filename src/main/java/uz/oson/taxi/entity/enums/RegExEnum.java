@@ -5,22 +5,26 @@ import lombok.Getter;
 @Getter
 public enum RegExEnum {
 
-    StartCode("^/start$"),
-    LangCode("^(uz|ru|en)$"),
-    PassengerCode("^(passenger|client:.*)$"),
-    DriverCode("^(driver)$"),
-    CreateOrderCode("^(create_order)$"),
-    MyOrdersCode("^(my_orders)$"),
-    ShareContactCode("^\\+998\\d{9}$"),
-    CityFromCode("^from:.*$"),
-    CityToCode("^to:.*$"),
-    SeatsCode("^seat:.*$"),
-    SaveSeatsCode("^(save_seats_count)$"),
-    DateCode("^(0?[1-9]|[12][0-9]|3[01])\\.(0?[1-9]|1[0-2])$"),
-    SkipCommentCode("^(skip_comment)$"),
-    CommentCode("^.+$"),
-    CancelOrderCode("^(cancel)$"),
-    ConfirmOrderCode("^(confirm_order)$");
+    Start("^/start$"),
+    Back("^back"),
+    Home("^main_menu"),
+    Lang("^(uz|ru|en)$"),
+    Passenger("^(passenger|client:.*)$"),
+    Driver("^(driver)$"),
+    BecomeDriver("^become_driver$"),
+    CreateOrder("^(create_order)$"),
+    MyOrders("^(my_orders)$"),
+    ShareContact("^\\+998\\d{9}$"),
+    CityFrom("^.*$"),
+    CityTo("^.*$"),
+    Seats("^seat:.*$"),
+    SaveSeats("^(save_seats_count)$"),
+    Date("^(0?[1-9]|[12][0-9]|3[01])\\.(0?[1-9]|1[0-2])$"),
+    SkipComment("^(skip_comment)$"),
+    Comment("^.+$"),
+    CancelOrder("^(cancel_order)$"),
+    ConfirmOrder("^(confirm_order)$"),
+    SkipRegEx(null);
 
     private final String regEx;
 

@@ -7,6 +7,8 @@ import uz.oson.taxi.entity.enums.LocaleEnum;
 import uz.oson.taxi.entity.enums.PageMessageEnum;
 import uz.oson.taxi.service.LocalizationService;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 @Service
@@ -41,6 +43,25 @@ public class MessageFactory {
             groupedMessages.append("\n");
         }
         return groupedMessages;
+    }
+
+    public String getCityDetails(String city, LocaleEnum localeEnum) {
+        Locale locale = localeEnum.getLocale();
+        return localeService.getLocaleText(city, locale);
+    }
+
+    public String getDateDetails(String day, LocaleEnum localeEnum) {
+        // 1️⃣ Для парсинга исходной строки "22.10"
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd.MM", localeEnum.getLocale());
+
+        // 2️⃣ Для форматирования в текстовом виде
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM", localeEnum.getLocale());
+
+        // 3️⃣ Добавляем текущий год, иначе LocalDate не сможет понять "22.10"
+        LocalDate localDate = LocalDate.parse(day + "." + LocalDate.now().getYear(),
+                DateTimeFormatter.ofPattern("dd.MM.yyyy", localeEnum.getLocale()));
+
+        return localDate.format(outputFormatter);
     }
 
 }

@@ -223,12 +223,12 @@
     "buttons": [
       [
         {
-          "textCode": "btn.city.kokand",
+          "textCode": "kokand",
           "callBack": "kokand",
           "buttonType": "InlineKeyboardMarkup"
         },
         {
-          "textCode": "btn.city.tashkent",
+          "textCode": "tashkent",
           "callBack": "tashkent",
           "buttonType": "InlineKeyboardMarkup"
         }
@@ -259,12 +259,12 @@
     "buttons": [
       [
         {
-          "textCode": "btn.city.kokand",
+          "textCode": "kokand",
           "callBack": "kokand",
           "buttonType": "InlineKeyboardMarkup"
         },
         {
-          "textCode": "btn.city.tashkent",
+          "textCode": "tashkent",
           "callBack": "tashkent",
           "buttonType": "InlineKeyboardMarkup"
         }

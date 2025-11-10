@@ -1,4 +1,4 @@
-package uz.oson.taxi.commands;
+package uz.oson.taxi.commands.passenger;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -7,10 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.Orders;
-import uz.oson.taxi.entity.enums.ButtonEnum;
-import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageCodeEnum;
-import uz.oson.taxi.entity.enums.PageMessageEnum;
+import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrdersCacheService;
 import uz.oson.taxi.service.UserStateService;
 import uz.oson.taxi.util.KeyboardFactory;
@@ -29,9 +26,10 @@ public class OrderSeatsPage implements BotPage {
 
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = update.getCallbackQuery().getMessage().getChatId();
+        Long chatId = userService.getChatId(update);
         LocaleEnum locale = userService.getUser(chatId).getLocale();
         int seatsCount = modifySeatsCount(update);
+        userService.setCurrentPage(BotPageStageEnum.ORDER_SEATS, chatId);
 
         return List.of(
                 SendMessage.builder()
@@ -43,7 +41,7 @@ public class OrderSeatsPage implements BotPage {
     }
 
     public int modifySeatsCount(Update update) {
-        Long chatId = update.getCallbackQuery().getMessage().getChatId();
+        Long chatId = userService.getChatId(update);
         Orders orders = ordersCacheService.get(chatId);
         Integer seatsCount = orders.getSeatsCount();
         ButtonEnum buttonEnum = ButtonEnum.getButton(update.getCallbackQuery().getData());
@@ -69,7 +67,15 @@ public class OrderSeatsPage implements BotPage {
 
     @Override
     public boolean isValid(Update update) {
-        return PageCodeEnum.isValid(PageCodeEnum.SEATS_CODE, update);
+        Long chatId = userService.getChatId(update);
+        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
+        if (currentPage == BotPageStageEnum.ORDER_SEATS) {
+            return true;
+        }
+        if (currentPage == BotPageStageEnum.ORDER_TO) {
+            return PageCommandEnum.isValid(List.of(PageCommandEnum.SEATS_CODE), update);
+        }
+        return false;
     }
 
 }

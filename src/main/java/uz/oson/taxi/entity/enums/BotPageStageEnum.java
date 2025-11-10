@@ -1,0 +1,24 @@
+package uz.oson.taxi.entity.enums;
+
+public enum BotPageStageEnum {
+    START,
+    SHARE_CONTACT,
+    PASSENGER_MENU,
+    ORDER_TO,
+    ORDER_SEATS,
+    ORDER_FROM,
+    ORDER_DATE,
+    LANGUAGE,
+    ROLE,
+    DRIVER_MENU,
+    BECOME_DRIVER,
+    SEARCH_PASSENGERS,
+    WRITE_NAME,
+    DRIVER_REGISTRATION_DONE,
+    WRITE_SECOND_NAME,
+    CREATE_ORDER,
+    MY_ORDERS,
+    CONFIRM_ORDER,
+    COMMENT,
+    CHECK_ORDER
+}

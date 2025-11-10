@@ -1,4 +1,4 @@
-package uz.oson.taxi.commands;
+package uz.oson.taxi.commands.passenger;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -8,10 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.commands.interfaces.OrderAction;
 import uz.oson.taxi.entity.Orders;
-import uz.oson.taxi.entity.enums.InputType;
-import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageCodeEnum;
-import uz.oson.taxi.entity.enums.PageMessageEnum;
+import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrderService;
 import uz.oson.taxi.service.UserStateService;
 import uz.oson.taxi.util.KeyboardFactory;
@@ -29,9 +26,11 @@ public class CommentPage implements BotPage, OrderAction {
 
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = update.getCallbackQuery().getMessage().getChatId();
+        Long chatId = userService.getChatId(update);
         LocaleEnum locale = userService.getUser(chatId).getLocale();
         updateOrder(update);
+        userService.setCurrentPage(BotPageStageEnum.COMMENT, chatId);
+
         return List.of(
                 SendMessage
                         .builder()
@@ -45,18 +44,23 @@ public class CommentPage implements BotPage, OrderAction {
 
     @Override
     public void updateOrder(Update update) {
-        InputType inputType = InputType.valueOf(update.getCallbackQuery().getData());
+        InputType inputType = InputType.getInputType(update);
         if (inputType == InputType.CALLBACK) {
             String leavingDate = InputType.extractValue(update, inputType);
-            Long chatId = update.getCallbackQuery().getMessage().getChatId();
-            Orders orderByChatId = orderService.findOrderByChatId(chatId);
+            Long chatId = userService.getChatId(update);
+            Orders orderByChatId = orderService.findOrderByChatIdInCache(chatId);
             orderByChatId.setLeavingDate(leavingDate);
-            orderService.updateOrder(orderByChatId);
+            orderService.updateOrderInCache(orderByChatId);
         }
     }
 
     @Override
     public boolean isValid(Update update) {
-        return PageCodeEnum.isValid(PageCodeEnum.COMMENT, update);
+        Long chatId = userService.getChatId(update);
+        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
+        if (currentPage == BotPageStageEnum.ORDER_DATE) {
+            return PageCommandEnum.isValid(List.of(PageCommandEnum.COMMENT), update);
+        }
+        return false;
     }
 }

@@ -101,13 +101,13 @@ public class KeyboardFactory {
 
     public InlineKeyboardMarkup fromCityKeyboard(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.FROM_KOKAND, ButtonEnum.FROM_TASHKENT)
+                inlineRow(localeEnum, ButtonEnum.KOKAND, ButtonEnum.TASHKENT)
         ));
     }
 
     public InlineKeyboardMarkup toCityKeyboard(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.TO_KOKAND, ButtonEnum.TO_TASHKENT)
+                inlineRow(localeEnum, ButtonEnum.KOKAND, ButtonEnum.TASHKENT)
         ));
     }
 
@@ -124,9 +124,29 @@ public class KeyboardFactory {
         ));
     }
 
-    public InlineKeyboardMarkup confirmOrderKeyboard(LocaleEnum localeEnum) {
+    public InlineKeyboardMarkup verificationPending(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.SUCCESS_ORDER)
+                inlineRow(localeEnum, ButtonEnum.BACK)
+        ));
+    }
+
+    public InlineKeyboardMarkup becomeDriver(LocaleEnum localeEnum) {
+        return KeyboardUtil.inlineKeyboard(List.of(
+                inlineRow(localeEnum, ButtonEnum.BECOME_DRIVER),
+                inlineRow(localeEnum, ButtonEnum.BACK)
+        ));
+    }
+
+    public InlineKeyboardMarkup searchPassengers(LocaleEnum localeEnum) {
+        return KeyboardUtil.inlineKeyboard(List.of(
+                inlineRow(localeEnum, ButtonEnum.SEARCH_PASSENGERS),
+                inlineRow(localeEnum, ButtonEnum.BACK)
+        ));
+    }
+
+    public InlineKeyboardMarkup backToMainMenuKeyboard(LocaleEnum localeEnum) {
+        return KeyboardUtil.inlineKeyboard(List.of(
+                inlineRow(localeEnum, ButtonEnum.HOME)
         ));
     }
 
