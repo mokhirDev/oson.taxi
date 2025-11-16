@@ -33,14 +33,11 @@ public enum ButtonEnum {
     CANCEL_ORDER("btn.cancel", "cancel_order", ButtonTypeEnum.INLINE),
 
     HOME("btn.main.menu", "main_menu", ButtonTypeEnum.INLINE),
-    BACK("btn.back", "back", ButtonTypeEnum.INLINE),
-    LANGUAGE("btn.language", "language", ButtonTypeEnum.INLINE),
 
     KOKAND("kokand", "kokand", ButtonTypeEnum.INLINE),
     TASHKENT("tashkent", "tashkent", ButtonTypeEnum.INLINE),
     // ---------------- Reply Buttons ----------------
-    SHARE_CONTACT("btn.share.contact", "share_contact", ButtonTypeEnum.REPLY),
-    SHARE_CONTACT_REMOVE("btn.share.contact", "share_contact", ButtonTypeEnum.REPLY);
+    SHARE_CONTACT("btn.share.contact", "share_contact", ButtonTypeEnum.REPLY);
 
     private final String buttonTextCode;
     private final String buttonCallBack;
@@ -60,6 +57,5 @@ public enum ButtonEnum {
         }
         return null;
     }
-
 }
 

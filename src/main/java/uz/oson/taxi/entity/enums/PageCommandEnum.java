@@ -2,7 +2,7 @@ package uz.oson.taxi.entity.enums;
 
 import lombok.Getter;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import uz.oson.taxi.commands.driver.BecomeDriver;
+import uz.oson.taxi.commands.driver.WriteName;
 import uz.oson.taxi.commands.driver.DriverPage;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.commands.manual.LangPage;
@@ -10,7 +10,6 @@ import uz.oson.taxi.commands.manual.StartPage;
 import uz.oson.taxi.commands.passenger.*;
 
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 public enum PageCommandEnum {
@@ -21,18 +20,16 @@ public enum PageCommandEnum {
     LANG_CODE(InputType.CALLBACK, RegExEnum.Lang, LangPage.class),
     ROLE(InputType.CALLBACK, RegExEnum.Lang, LangPage.class),
     DRIVER_CODE(InputType.CALLBACK, RegExEnum.Driver, DriverPage.class),
-    BECOME_DRIVER(InputType.CALLBACK, RegExEnum.BecomeDriver, BecomeDriver.class),
+    BECOME_DRIVER(InputType.CALLBACK, RegExEnum.BecomeDriver, WriteName.class),
     PASSENGER_CODE(InputType.CALLBACK, RegExEnum.Passenger, PassengerPage.class),
     MY_ORDERS_CODE(InputType.CALLBACK, RegExEnum.MyOrders, null),
     CREATE_ORDER_CODE(InputType.CALLBACK, RegExEnum.CreateOrder, CreateOrderPage.class),
-    SHARE_CONTACT_CODE(InputType.CONTACT, RegExEnum.ShareContact, ShareContactPage.class),
     CITY_FROM_CODE(InputType.CALLBACK, RegExEnum.CityFrom, OrderFromPage.class),
     CITY_TO_CODE(InputType.CALLBACK, RegExEnum.CityTo, OrderToPage.class),
     SEATS_CODE(InputType.CALLBACK, RegExEnum.Seats, OrderSeatsPage.class),
     ORDER_DATE_CODE(InputType.CALLBACK, RegExEnum.SaveSeats, OrderDatePage.class),
     COMMENT(InputType.CALLBACK, RegExEnum.Date, CommentPage.class),
     SKIP_COMMENT(InputType.CALLBACK, RegExEnum.SkipComment, CheckOrderPage.class),
-    ADD_COMMENT(InputType.TEXT, RegExEnum.SkipRegEx, CheckOrderPage.class),
     CANCEL_ORDER_CODE(InputType.CALLBACK, RegExEnum.CancelOrder, DriverPage.class),
     CONFIRM_ORDER_CODE(InputType.CALLBACK, RegExEnum.ConfirmOrder, ConfirmOrderPage.class);
 
@@ -50,16 +47,16 @@ public enum PageCommandEnum {
         InputType inputType = InputType.getInputType(update);
         assert inputType != null;
         for (PageCommandEnum pageCommandEnum : pageCommandEnums) {
-            if (pageCommandEnum.getInputType().equals(inputType)) {
-                RegExEnum codeRegEx = pageCommandEnum.getCodeRegEx();
-                if (codeRegEx.equals(RegExEnum.SkipRegEx)) {
-                    return true;
-                } else {
-                    String extractedValue = InputType.extractValue(update, inputType);
-                    return Objects.requireNonNull(extractedValue).trim().matches(codeRegEx.getRegEx());
-                }
-
-            }
+//            if (pageCommandEnum.getInputType().equals(inputType)) {
+//                RegExEnum codeRegEx = pageCommandEnum.getCodeRegEx();
+//                if (codeRegEx.equals(RegExEnum.SkipRegEx)) {
+//                    return true;
+//                } else {
+//                    String extractedValue = InputType.extractValue(update, inputType);
+//                    return codeRegEx.matches(extractedValue);
+//                }
+//
+//            }
         }
         return false;
     }

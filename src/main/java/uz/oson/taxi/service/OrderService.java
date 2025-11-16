@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.entity.Orders;
 import uz.oson.taxi.repository.OrdersRepository;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 
@@ -15,15 +16,16 @@ public class OrderService {
     private final OrdersCacheService ordersCacheService;
 
     public void createOrderInCache(Update update) {
+        Long chatId = UpdateUtil.getChatId(update);
         ordersCacheService.put(
                 Orders
                         .builder()
-                        .chatId(update.getMessage().getChatId())
-                        .contactNumber(update.getMessage().getContact().getPhoneNumber())
+                        .chatId(chatId)
+                        .contactNumber(null)
                         .leavingDate(null)
                         .from_city(null)
                         .to_city(null)
-                        .seatsCount(0)
+                        .seatsCount(1)
                         .comment(null)
                         .build()
         );
@@ -49,4 +51,10 @@ public class OrderService {
         }
     }
 
+    public void cancelOrder(Long chatId) {
+        Orders order = ordersCacheService.get(chatId);
+        if (order != null) {
+            ordersCacheService.evict(chatId);
+        }
+    }
 }

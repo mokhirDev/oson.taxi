@@ -2,6 +2,8 @@ package uz.oson.taxi.entity.enums;
 
 import lombok.Getter;
 
+import java.util.regex.Pattern;
+
 @Getter
 public enum RegExEnum {
 
@@ -21,15 +23,22 @@ public enum RegExEnum {
     SaveSeats("^(save_seats_count)$"),
     Date("^(0?[1-9]|[12][0-9]|3[01])\\.(0?[1-9]|1[0-2])$"),
     SkipComment("^(skip_comment)$"),
-    Comment("^.+$"),
+    Text("^.+$"),
     CancelOrder("^(cancel_order)$"),
-    ConfirmOrder("^(confirm_order)$"),
-    SkipRegEx(null);
+    ConfirmOrder("^(confirm_order)$");
 
-    private final String regEx;
+    private final Pattern pattern;
 
-    RegExEnum(String regEx) {
-        this.regEx = regEx;
+    RegExEnum(String regex) {
+        this.pattern = Pattern.compile(regex);
+    }
+
+    public Pattern getPattern() {
+        return pattern;
+    }
+
+    public boolean matches(String text) {
+        return text != null && pattern.matcher(text).matches();
     }
 
 }

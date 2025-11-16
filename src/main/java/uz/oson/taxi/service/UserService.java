@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.entity.UserState;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.repository.UserStateRepository;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +14,9 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserStateService {
+public class UserService {
     private final UserStateRepository userStateRepository;
-    private final UserStateCacheService userCacheService;
+    private final UserCacheService userCacheService;
 
     public UserState setNewCredentials(Long chatId) {
         UserState userState;
@@ -30,16 +31,6 @@ public class UserStateService {
         }
         userCacheService.put(userState);
         return userStateRepository.save(userState);
-    }
-
-    public Long getChatId(Update update) {
-        InputType inputType = InputType.getInputType(update);
-        if (inputType == null) return null;
-        return switch (inputType) {
-            case TEXT, CONTACT -> update.getMessage().getChatId();
-            case CALLBACK -> update.getCallbackQuery().getFrom().getId();
-            default -> null;
-        };
     }
 
     void setDefaultCredentials(UserState entity) {
@@ -95,7 +86,7 @@ public class UserStateService {
     }
 
     public void setFirstName(Update update) {
-        Long chatId = getChatId(update);
+        Long chatId = UpdateUtil.getChatId(update);
         InputType inputType = InputType.getInputType(update);
         if (inputType == null) return;
         if (inputType.equals(InputType.TEXT)) {
@@ -125,7 +116,7 @@ public class UserStateService {
     }
 
     public void setSecondName(Update update) {
-        Long chatId = getChatId(update);
+        Long chatId = UpdateUtil.getChatId(update);
         InputType inputType = InputType.getInputType(update);
         if (inputType == null) return;
         if (inputType.equals(InputType.TEXT)) {
@@ -143,7 +134,7 @@ public class UserStateService {
             String language = update.getCallbackQuery().getData();
             return LocaleEnum.getLocaleEnum(language);
         }
-        LocaleEnum locale = userCacheService.get(getChatId(update)).getLocale();
+        LocaleEnum locale = userCacheService.get(UpdateUtil.getChatId(update)).getLocale();
         if (locale != null) {
             return locale;
         }

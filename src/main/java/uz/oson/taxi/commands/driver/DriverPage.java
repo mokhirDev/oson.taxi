@@ -6,29 +6,38 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.UserState;
 import uz.oson.taxi.entity.enums.*;
-import uz.oson.taxi.service.UserStateService;
+import uz.oson.taxi.service.UserService;
 import uz.oson.taxi.util.KeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
+import uz.oson.taxi.util.PageIdGenerator;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class DriverPage implements BotPage {
-    private final UserStateService userService;
+    private final UserService userService;
     private final MessageFactory messageFactory;
     private final KeyboardFactory keyboardFactory;
 
     @Override
+    public String nextPage(Update update) {
+        String input = UpdateUtil.getInput(update);
+        if (RegExEnum.BecomeDriver.matches(input)) {
+            return PageIdGenerator.generate(BotPageStageEnum.WRITE_NAME, UserTypeEnum.DRIVER);
+        }
+        return getPageId();
+    }
+
+    @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = userService.getChatId(update);
+        Long chatId = UpdateUtil.getChatId(update);
         UserState user = userService.getUser(chatId);
         LocaleEnum locale = user.getLocale();
-        userService.setCurrentPage(BotPageStageEnum.DRIVER_MENU, chatId);
         InlineKeyboardMarkup inlineKeyboard;
         String pageMessage = messageFactory.getPageMessage(PageMessageEnum.DRIVER_MENU, locale);
         if (user.getIsVerified().equals(Verification.VERIFIED)) {
@@ -42,7 +51,7 @@ public class DriverPage implements BotPage {
 
         return List.of(
                 SendMessage.builder()
-                        .chatId(chatId.toString())
+                        .chatId(String.valueOf(chatId))
                         .text(pageMessage)
                         .replyMarkup(inlineKeyboard)
                         .build()
@@ -50,15 +59,15 @@ public class DriverPage implements BotPage {
     }
 
     @Override
-    public boolean isValid(Update update) {
-        Long chatId = userService.getChatId(update);
-        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
-        if (currentPage == BotPageStageEnum.DRIVER_REGISTRATION_DONE) {
-            return true;
-        }
-        if (currentPage == BotPageStageEnum.DRIVER_MENU) {
-            return PageCommandEnum.isValid(List.of(PageCommandEnum.HOME_CODE), update);
-        }
-        return PageCommandEnum.isValid(List.of(PageCommandEnum.DRIVER_CODE), update);
+    public String getPageId() {
+        return PageIdGenerator.generate(
+                BotPageStageEnum.DRIVER_MENU,
+                UserTypeEnum.DRIVER
+        );
+    }
+
+    @Override
+    public String previousPage() {
+        return PageIdGenerator.generate(BotPageStageEnum.ROLE, UserTypeEnum.GUEST);
     }
 }

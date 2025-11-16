@@ -6,52 +6,56 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
-import uz.oson.taxi.entity.enums.BotPageStageEnum;
-import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageCommandEnum;
-import uz.oson.taxi.entity.enums.PageMessageEnum;
+import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.util.MessageFactory;
-import uz.oson.taxi.service.UserStateService;
+import uz.oson.taxi.service.UserService;
 import uz.oson.taxi.util.KeyboardFactory;
+import uz.oson.taxi.util.PageIdGenerator;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class LangPage implements BotPage {
-    private final UserStateService userService;
+
+    private final UserService userService;
     private final MessageFactory messageFactory;
     private final KeyboardFactory keyboardFactory;
 
     @Override
+    public String nextPage(Update update) {
+        String input = UpdateUtil.getInput(update);
+        if (RegExEnum.Lang.matches(input)) {
+            userService.setLang(LocaleEnum.getLocaleEnum(input), UpdateUtil.getChatId(update));
+            return PageIdGenerator.generate(BotPageStageEnum.ROLE, UserTypeEnum.GUEST);
+        }
+        return getPageId();
+    }
+
+    @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = userService.getChatId(update);
-        LocaleEnum userLocale = userService.getUserLocale(update);
-        setUserLocale(userLocale, chatId);
-        userService.setCurrentPage(BotPageStageEnum.ROLE, chatId);
+        Long chatId = UpdateUtil.getChatId(update);
+        LocaleEnum locale = userService.getUserLocale(update);
+
         return List.of(
                 SendMessage.builder()
-                        .chatId(chatId.toString())
-                        .text(messageFactory.getPageMessage(PageMessageEnum.ROLE, userLocale))
-                        .replyMarkup(
-                                keyboardFactory
-                                        .roleKeyboard(userLocale)
-                        )
+                        .chatId(String.valueOf(chatId))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.START, locale))
+                        .replyMarkup(keyboardFactory.cleanReplyKeyboard())
+                        .build(),
+
+                SendMessage.builder()
+                        .chatId(String.valueOf(chatId))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.LANG, locale))
+                        .replyMarkup(keyboardFactory.languageKeyboard())
                         .build()
         );
     }
 
-    void setUserLocale(LocaleEnum language, Long chatId) {
-        userService.setLang(language, chatId);
-    }
 
     @Override
-    public boolean isValid(Update update) {
-        Long chatId = userService.getChatId(update);
-        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
-        if (currentPage == BotPageStageEnum.LANGUAGE) {
-            return PageCommandEnum.isValid(List.of(PageCommandEnum.LANG_CODE), update);
-        }
-        return false;
+    public String getPageId() {
+        return PageIdGenerator.generate(BotPageStageEnum.LANGUAGE, UserTypeEnum.GUEST);
     }
 }

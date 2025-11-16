@@ -10,9 +10,10 @@ import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
-public class UserStateCacheService {
+public class UserCacheService {
 
     private final RedisTemplate<String, UserState> userRedisTemplate;
+
     @Value("${spring.data.redis.user-prefix}")
     private String keyPrefix;
 
@@ -27,15 +28,6 @@ public class UserStateCacheService {
     // Сохранить UserState в кэш
     public void put(UserState userState) {
         userRedisTemplate.opsForValue().set(keyPrefix + userState.getChatId(), userState, Duration.ofHours(ttlHours));
-    }
-
-    // Удалить UserState из кэша
-    public void evict(Long chatId) {
-        userRedisTemplate.delete(keyPrefix + chatId);
-    }
-
-    public boolean exists(Long chatId) {
-        return Boolean.TRUE.equals(userRedisTemplate.hasKey(keyPrefix + chatId));
     }
 
 }

@@ -9,9 +9,11 @@ import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.Orders;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrdersCacheService;
-import uz.oson.taxi.service.UserStateService;
+import uz.oson.taxi.service.UserService;
 import uz.oson.taxi.util.KeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
+import uz.oson.taxi.util.PageIdGenerator;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 
@@ -22,18 +24,25 @@ public class OrderSeatsPage implements BotPage {
     private final OrdersCacheService ordersCacheService;
     private final KeyboardFactory keyboardFactory;
     private final MessageFactory messageFactory;
-    private final UserStateService userService;
+    private final UserService userService;
+
+    @Override
+    public String nextPage(Update update) {
+        String input = UpdateUtil.getInput(update);
+        if (RegExEnum.SaveSeats.matches(input) && isValidCountSeats(update)) {
+            return PageIdGenerator.generate(BotPageStageEnum.ORDER_DATE, UserTypeEnum.PASSENGER);
+        }
+        return getPageId();
+    }
 
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = userService.getChatId(update);
+        Long chatId = UpdateUtil.getChatId(update);
         LocaleEnum locale = userService.getUser(chatId).getLocale();
         int seatsCount = modifySeatsCount(update);
-        userService.setCurrentPage(BotPageStageEnum.ORDER_SEATS, chatId);
-
         return List.of(
                 SendMessage.builder()
-                        .chatId(chatId.toString())
+                        .chatId(String.valueOf(chatId))
                         .text(messageFactory.getPageMessage(PageMessageEnum.ORDER_SEATS, locale))
                         .replyMarkup(keyboardFactory.seatsKeyboard(locale, seatsCount))
                         .build()
@@ -41,7 +50,7 @@ public class OrderSeatsPage implements BotPage {
     }
 
     public int modifySeatsCount(Update update) {
-        Long chatId = userService.getChatId(update);
+        Long chatId = UpdateUtil.getChatId(update);
         Orders orders = ordersCacheService.get(chatId);
         Integer seatsCount = orders.getSeatsCount();
         ButtonEnum buttonEnum = ButtonEnum.getButton(update.getCallbackQuery().getData());
@@ -66,16 +75,18 @@ public class OrderSeatsPage implements BotPage {
     }
 
     @Override
-    public boolean isValid(Update update) {
-        Long chatId = userService.getChatId(update);
-        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
-        if (currentPage == BotPageStageEnum.ORDER_SEATS) {
-            return true;
-        }
-        if (currentPage == BotPageStageEnum.ORDER_TO) {
-            return PageCommandEnum.isValid(List.of(PageCommandEnum.SEATS_CODE), update);
-        }
-        return false;
+    public String getPageId() {
+        return PageIdGenerator.generate(
+                BotPageStageEnum.ORDER_SEATS,
+                UserTypeEnum.PASSENGER
+        );
+    }
+
+    private boolean isValidCountSeats(Update update) {
+        Long chatId = UpdateUtil.getChatId(update);
+        Orders orders = ordersCacheService.get(chatId);
+        Integer seatsCount = orders.getSeatsCount();
+        return seatsCount >= 1 && seatsCount <= 4;
     }
 
 }

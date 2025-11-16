@@ -10,9 +10,11 @@ import uz.oson.taxi.commands.interfaces.OrderAction;
 import uz.oson.taxi.entity.Orders;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrderService;
-import uz.oson.taxi.service.UserStateService;
+import uz.oson.taxi.service.UserService;
 import uz.oson.taxi.util.KeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
+import uz.oson.taxi.util.PageIdGenerator;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 
@@ -22,29 +24,35 @@ public class OrderToPage implements BotPage, OrderAction {
     private final MessageFactory messageFactory;
     private final KeyboardFactory keyboardFactory;
     private final OrderService orderService;
-    private final UserStateService userService;
+    private final UserService userService;
+
+    @Override
+    public String nextPage(Update update) {
+        String input = UpdateUtil.getInput(update);
+        if (RegExEnum.CityTo.matches(input)) {
+            updateOrder(update);
+            return PageIdGenerator.generate(BotPageStageEnum.ORDER_SEATS, UserTypeEnum.PASSENGER);
+        }
+        return getPageId();
+    }
 
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = userService.getChatId(update);
-        LocaleEnum locale = userService.getUser(chatId).getLocale();
-        userService.setCurrentPage(BotPageStageEnum.ORDER_TO, chatId);
-
-        updateOrder(update);
+        Long chatId = UpdateUtil.getChatId(update);
+        LocaleEnum locale = userService.getUserLocale(update);
         return List.of(
                 SendMessage.builder()
-                        .chatId(chatId.toString())
-                        .text(messageFactory.getPageMessage(PageMessageEnum.ORDER_SEATS, locale))
-                        .replyMarkup(keyboardFactory.seatsKeyboard(locale, 0))
-                        .build()
-        );
+                        .chatId(String.valueOf(chatId))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.ORDER_TO, locale))
+                        .replyMarkup(keyboardFactory.toCityKeyboard(locale))
+                        .build());
     }
 
     @Override
     public void updateOrder(Update update) {
         InputType inputType = InputType.getInputType(update);
         if (inputType == InputType.CALLBACK) {
-            String toCity = update.getCallbackQuery().getData();
+            String toCity = UpdateUtil.getInput(update);
             Orders orderByChatId = orderService.findOrderByChatIdInCache(update.getCallbackQuery().getMessage().getChatId());
             orderByChatId.setTo_city(toCity);
             orderService.updateOrderInCache(orderByChatId);
@@ -52,12 +60,10 @@ public class OrderToPage implements BotPage, OrderAction {
     }
 
     @Override
-    public boolean isValid(Update update) {
-        Long chatId = userService.getChatId(update);
-        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
-        if (currentPage == BotPageStageEnum.ORDER_FROM) {
-            return PageCommandEnum.isValid(List.of(PageCommandEnum.CITY_TO_CODE), update);
-        }
-        return false;
+    public String getPageId() {
+        return PageIdGenerator.generate(
+                BotPageStageEnum.ORDER_TO,
+                UserTypeEnum.PASSENGER
+        );
     }
 }

@@ -6,32 +6,44 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
-import uz.oson.taxi.entity.enums.BotPageStageEnum;
-import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageCommandEnum;
-import uz.oson.taxi.entity.enums.PageMessageEnum;
-import uz.oson.taxi.service.UserStateService;
+import uz.oson.taxi.commands.interfaces.OrderAction;
+import uz.oson.taxi.entity.Orders;
+import uz.oson.taxi.entity.enums.*;
+import uz.oson.taxi.service.OrderService;
+import uz.oson.taxi.service.UserService;
 import uz.oson.taxi.util.KeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
+import uz.oson.taxi.util.PageIdGenerator;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class CreateOrderPage implements BotPage {
+public class CreateOrderPage implements BotPage, OrderAction {
     private final MessageFactory messageFactory;
     private final KeyboardFactory keyboardFactory;
-    private final UserStateService userService;
+    private final UserService userService;
+    private final OrderService orderService;
+
+    @Override
+    public String nextPage(Update update) {
+        String input = UpdateUtil.getInput(update);
+        if (RegExEnum.ShareContact.matches(input)) {
+            updateOrder(update);
+            return PageIdGenerator.generate(BotPageStageEnum.ORDER_FROM, UserTypeEnum.PASSENGER);
+        }
+        return getPageId();
+    }
 
     @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = userService.getChatId(update);
+        Long chatId = UpdateUtil.getChatId(update);
         LocaleEnum localeEnum = userService.getUser(chatId).getLocale();
-        userService.setCurrentPage(BotPageStageEnum.CREATE_ORDER, chatId);
 
         return List.of(
                 SendMessage.builder()
-                        .chatId(chatId.toString())
+                        .chatId(String.valueOf(chatId))
                         .text(messageFactory.getPageMessage(PageMessageEnum.SHARE_CONTACT, localeEnum))
                         .replyMarkup(keyboardFactory.shareContactKeyboard(localeEnum))
                         .build()
@@ -39,13 +51,23 @@ public class CreateOrderPage implements BotPage {
     }
 
     @Override
-    public boolean isValid(Update update) {
-        Long chatId = userService.getChatId(update);
-        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
-        if (currentPage == BotPageStageEnum.PASSENGER_MENU) {
-            return PageCommandEnum.isValid(List.of(PageCommandEnum.CREATE_ORDER_CODE), update);
+    public String getPageId() {
+        return PageIdGenerator.generate(
+                BotPageStageEnum.CREATE_ORDER,
+                UserTypeEnum.PASSENGER
+        );
+    }
+
+    @Override
+    public void updateOrder(Update update) {
+        InputType inputType = InputType.getInputType(update);
+        if (inputType == InputType.CONTACT) {
+            String input = UpdateUtil.getInput(update);
+            Long chatId = UpdateUtil.getChatId(update);
+            Orders orderByChatId = orderService.findOrderByChatIdInCache(chatId);
+            orderByChatId.setContactNumber(input);
+            orderService.updateOrderInCache(orderByChatId);
         }
-        return false;
     }
 
 }

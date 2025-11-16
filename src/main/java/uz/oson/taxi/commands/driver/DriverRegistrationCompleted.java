@@ -7,27 +7,34 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.UserState;
-import uz.oson.taxi.entity.enums.BotPageStageEnum;
-import uz.oson.taxi.entity.enums.InputType;
-import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageMessageEnum;
-import uz.oson.taxi.service.UserStateService;
+import uz.oson.taxi.entity.enums.*;
+import uz.oson.taxi.service.UserService;
 import uz.oson.taxi.util.KeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
+import uz.oson.taxi.util.PageIdGenerator;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class RegistrationDriverComplited implements BotPage {
-    private final UserStateService userService;
+public class DriverRegistrationCompleted implements BotPage {
+    private final UserService userService;
     private final MessageFactory messageFactory;
     private final KeyboardFactory keyboardFactory;
 
     @Override
+    public String nextPage(Update update) {
+        String input = UpdateUtil.getInput(update);
+        if (RegExEnum.Home.matches(input)) {
+            return PageIdGenerator.generate(BotPageStageEnum.DRIVER_MENU, UserTypeEnum.DRIVER);
+        }
+        return getPageId();
+    }
+
+    @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = userService.getChatId(update);
+        Long chatId = UpdateUtil.getChatId(update);
         UserState user = userService.getUser(chatId);
         LocaleEnum locale = user.getLocale();
         userService.setCurrentPage(BotPageStageEnum.DRIVER_REGISTRATION_DONE, chatId);
@@ -36,7 +43,7 @@ public class RegistrationDriverComplited implements BotPage {
         String pageMessage = messageFactory.getPageMessage(PageMessageEnum.DRIVER_REGISTRATION_DONE, locale);
         return List.of(
                 SendMessage.builder()
-                        .chatId(chatId.toString())
+                        .chatId(String.valueOf(chatId))
                         .text(pageMessage.formatted(user.getFirstName()))
                         .replyMarkup(keyboardFactory.backToMainMenuKeyboard(locale))
                         .build()
@@ -44,12 +51,10 @@ public class RegistrationDriverComplited implements BotPage {
     }
 
     @Override
-    public boolean isValid(Update update) {
-        Long chatId = userService.getChatId(update);
-        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
-        if (Objects.equals(InputType.getInputType(update), InputType.TEXT)) {
-            return currentPage.equals(BotPageStageEnum.WRITE_NAME);
-        }
-        return false;
+    public String getPageId() {
+        return PageIdGenerator.generate(
+                BotPageStageEnum.DRIVER_REGISTRATION_DONE,
+                UserTypeEnum.DRIVER
+        );
     }
 }

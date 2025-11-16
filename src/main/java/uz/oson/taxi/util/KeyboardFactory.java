@@ -126,21 +126,21 @@ public class KeyboardFactory {
 
     public InlineKeyboardMarkup verificationPending(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.BACK)
+                inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
         ));
     }
 
     public InlineKeyboardMarkup becomeDriver(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
                 inlineRow(localeEnum, ButtonEnum.BECOME_DRIVER),
-                inlineRow(localeEnum, ButtonEnum.BACK)
+                inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
         ));
     }
 
     public InlineKeyboardMarkup searchPassengers(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
                 inlineRow(localeEnum, ButtonEnum.SEARCH_PASSENGERS),
-                inlineRow(localeEnum, ButtonEnum.BACK)
+                inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
         ));
     }
 

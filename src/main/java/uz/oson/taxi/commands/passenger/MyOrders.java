@@ -7,14 +7,13 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.Orders;
-import uz.oson.taxi.entity.enums.BotPageStageEnum;
-import uz.oson.taxi.entity.enums.LocaleEnum;
-import uz.oson.taxi.entity.enums.PageCommandEnum;
-import uz.oson.taxi.entity.enums.PageMessageEnum;
+import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrderService;
-import uz.oson.taxi.service.UserStateService;
+import uz.oson.taxi.service.UserService;
 import uz.oson.taxi.util.KeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
+import uz.oson.taxi.util.PageIdGenerator;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 
@@ -22,34 +21,32 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MyOrders implements BotPage {
     private final KeyboardFactory keyboardFactory;
-    private final UserStateService userService;
+    private final UserService userService;
     private final OrderService orderService;
     private final MessageFactory messageFactory;
 
     @Override
+    public String nextPage(Update update) {
+        String input = UpdateUtil.getInput(update);
+        if (RegExEnum.Home.matches(input)) {
+            return PageIdGenerator.generate(BotPageStageEnum.PASSENGER_MENU, UserTypeEnum.PASSENGER);
+        }
+        return getPageId();
+    }
+
+    @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = userService.getChatId(update);
+        Long chatId = UpdateUtil.getChatId(update);
         LocaleEnum localeEnum = userService.getUser(chatId).getLocale();
-        userService.setCurrentPage(BotPageStageEnum.MY_ORDERS, chatId);
         String pageMessage = fillMyOrderDetails(chatId, localeEnum);
 
         return List.of(
                 SendMessage.builder()
-                        .chatId(chatId.toString())
+                        .chatId(String.valueOf(chatId))
                         .text(pageMessage)
                         .replyMarkup(keyboardFactory.backToMainMenuKeyboard(localeEnum))
                         .build()
         );
-    }
-
-    @Override
-    public boolean isValid(Update update) {
-        Long chatId = userService.getChatId(update);
-        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
-        if (currentPage == BotPageStageEnum.PASSENGER_MENU) {
-            return PageCommandEnum.isValid(List.of(PageCommandEnum.MY_ORDERS_CODE), update);
-        }
-        return false;
     }
 
     private String fillMyOrderDetails(Long chatId, LocaleEnum locale) {
@@ -77,5 +74,13 @@ public class MyOrders implements BotPage {
             return "";
         }
         return value.trim();
+    }
+
+    @Override
+    public String getPageId() {
+        return PageIdGenerator.generate(
+                BotPageStageEnum.MY_ORDERS,
+                UserTypeEnum.PASSENGER
+        );
     }
 }

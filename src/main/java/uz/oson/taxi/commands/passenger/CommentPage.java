@@ -10,9 +10,11 @@ import uz.oson.taxi.commands.interfaces.OrderAction;
 import uz.oson.taxi.entity.Orders;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrderService;
-import uz.oson.taxi.service.UserStateService;
+import uz.oson.taxi.service.UserService;
 import uz.oson.taxi.util.KeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
+import uz.oson.taxi.util.PageIdGenerator;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 
@@ -20,21 +22,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentPage implements BotPage, OrderAction {
     private final KeyboardFactory keyboardFactory;
-    private final UserStateService userService;
+    private final UserService userService;
     private final MessageFactory messageFactory;
     private final OrderService orderService;
 
     @Override
-    public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = userService.getChatId(update);
-        LocaleEnum locale = userService.getUser(chatId).getLocale();
-        updateOrder(update);
-        userService.setCurrentPage(BotPageStageEnum.COMMENT, chatId);
+    public String nextPage(Update update) {
+        String input = UpdateUtil.getInput(update);
+        if (RegExEnum.Text.matches(input) || RegExEnum.SkipComment.matches(input)) {
+            updateOrder(update);
+            return PageIdGenerator.generate(BotPageStageEnum.CHECK_ORDER, UserTypeEnum.PASSENGER);
+        }
+        return getPageId();
+    }
 
+    @Override
+    public List<BotApiMethod<?>> handle(Update update) {
+        Long chatId = UpdateUtil.getChatId(update);
+        LocaleEnum locale = userService.getUser(chatId).getLocale();
         return List.of(
                 SendMessage
                         .builder()
-                        .chatId(chatId)
+                        .chatId(String.valueOf(chatId))
                         .text(messageFactory.getPageMessage(PageMessageEnum.COMMENT, locale))
                         .replyMarkup(keyboardFactory.commentKeyboard(locale))
                         .build()
@@ -45,22 +54,20 @@ public class CommentPage implements BotPage, OrderAction {
     @Override
     public void updateOrder(Update update) {
         InputType inputType = InputType.getInputType(update);
-        if (inputType == InputType.CALLBACK) {
-            String leavingDate = InputType.extractValue(update, inputType);
-            Long chatId = userService.getChatId(update);
+        if (inputType == InputType.TEXT) {
+            Long chatId = UpdateUtil.getChatId(update);
+            String input = UpdateUtil.getInput(update);
             Orders orderByChatId = orderService.findOrderByChatIdInCache(chatId);
-            orderByChatId.setLeavingDate(leavingDate);
+            orderByChatId.setComment(input);
             orderService.updateOrderInCache(orderByChatId);
         }
     }
 
     @Override
-    public boolean isValid(Update update) {
-        Long chatId = userService.getChatId(update);
-        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
-        if (currentPage == BotPageStageEnum.ORDER_DATE) {
-            return PageCommandEnum.isValid(List.of(PageCommandEnum.COMMENT), update);
-        }
-        return false;
+    public String getPageId() {
+        return PageIdGenerator.generate(
+                BotPageStageEnum.COMMENT,
+                UserTypeEnum.PASSENGER
+        );
     }
 }

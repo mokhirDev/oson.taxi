@@ -5,13 +5,16 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.Orders;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrderService;
-import uz.oson.taxi.service.UserStateService;
+import uz.oson.taxi.service.UserService;
 import uz.oson.taxi.util.KeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
+import uz.oson.taxi.util.PageIdGenerator;
+import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 
@@ -20,21 +23,33 @@ import java.util.List;
 public class OrderFromPage implements BotPage {
     private final MessageFactory messageFactory;
     private final KeyboardFactory keyboardFactory;
-    private final UserStateService userService;
+    private final UserService userService;
     private final OrderService orderService;
 
     @Override
+    public String nextPage(Update update) {
+        String input = UpdateUtil.getInput(update);
+        if (RegExEnum.CityFrom.matches(input)) {
+            updateOrder(update);
+            return PageIdGenerator.generate(BotPageStageEnum.ORDER_TO, UserTypeEnum.PASSENGER);
+        }
+        return getPageId();
+    }
+
+    @Override
     public List<BotApiMethod<?>> handle(Update update) {
-        Long chatId = userService.getChatId(update);
+        Long chatId = UpdateUtil.getChatId(update);
         LocaleEnum locale = userService.getUser(chatId).getLocale();
-        userService.setCurrentPage(BotPageStageEnum.ORDER_FROM, chatId);
 
         updateOrder(update);
+        SendMessage removeReply = buildSendMessage(chatId, messageFactory.getPageMessage(PageMessageEnum.CONTACT_RECEIVED, locale),
+                keyboardFactory.cleanReplyKeyboard());
         return List.of(
+                removeReply,
                 SendMessage.builder()
-                        .chatId(chatId.toString())
-                        .text(messageFactory.getPageMessage(PageMessageEnum.ORDER_TO, locale))
-                        .replyMarkup(keyboardFactory.toCityKeyboard(locale))
+                        .chatId(String.valueOf(chatId))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.ORDER_FROM, locale))
+                        .replyMarkup(keyboardFactory.fromCityKeyboard(locale))
                         .build()
         );
     }
@@ -42,21 +57,27 @@ public class OrderFromPage implements BotPage {
     private void updateOrder(Update update) {
         InputType inputType = InputType.getInputType(update);
         if (inputType == InputType.CALLBACK) {
-            String fromCity = InputType.extractValue(update, inputType);
-            Long chatId = update.getCallbackQuery().getFrom().getId();
+            String fromCity = UpdateUtil.getInput(update);
+            Long chatId = UpdateUtil.getChatId(update);
             Orders orderByChatId = orderService.findOrderByChatIdInCache(chatId);
             orderByChatId.setFrom_city(fromCity);
             orderService.updateOrderInCache(orderByChatId);
         }
     }
 
+    private SendMessage buildSendMessage(Long chatId, String text, ReplyKeyboard keyboard) {
+        return SendMessage.builder()
+                .chatId(chatId.toString())
+                .text(text)
+                .replyMarkup(keyboard)
+                .build();
+    }
+
     @Override
-    public boolean isValid(Update update) {
-        Long chatId = userService.getChatId(update);
-        BotPageStageEnum currentPage = userService.getCurrentPage(chatId);
-        if (currentPage == BotPageStageEnum.SHARE_CONTACT) {
-            return PageCommandEnum.isValid(List.of(PageCommandEnum.CITY_FROM_CODE), update);
-        }
-        return false;
+    public String getPageId() {
+        return PageIdGenerator.generate(
+                BotPageStageEnum.ORDER_FROM,
+                UserTypeEnum.PASSENGER
+        );
     }
 }
