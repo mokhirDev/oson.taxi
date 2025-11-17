@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.config.PageRegistry;
+import uz.oson.taxi.entity.enums.CityEnum;
 import uz.oson.taxi.service.NavigationHistoryService;
 
 import java.util.ArrayList;
@@ -75,5 +76,9 @@ public class PageNavigator {
 
     public void setLastMessage(Long chatId, Integer messageId) {
         history.pushMessageId(chatId, messageId, MAX_STORED_MESSAGE_IDS);
+    }
+
+    public void addDriverRoute(Long chatId, CityEnum city){
+        history.pushDriverRoute(chatId, city);
     }
 }

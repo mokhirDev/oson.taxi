@@ -25,6 +25,8 @@ public class OsonTaxiBot extends TelegramLongPollingBot {
     private String botUsername;
     @Value("${telegram.bot.token}")
     private String botToken;
+    @Value("${telegram.bot.oson-taxi-admin}")
+    private String osonTaxiAdmin;
 
     @Override
     public String getBotUsername() {

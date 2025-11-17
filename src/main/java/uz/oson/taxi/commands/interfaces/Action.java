@@ -2,6 +2,6 @@ package uz.oson.taxi.commands.interfaces;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public interface OrderAction {
-    void updateOrder(Update update);
+public interface Action {
+    void update(Update update);
 }

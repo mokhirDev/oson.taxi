@@ -10,7 +10,7 @@ import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.UserState;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.UserService;
-import uz.oson.taxi.util.KeyboardFactory;
+import uz.oson.taxi.util.ChatKeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
 import uz.oson.taxi.util.PageIdGenerator;
 import uz.oson.taxi.util.UpdateUtil;
@@ -22,7 +22,7 @@ import java.util.List;
 public class DriverPage implements BotPage {
     private final UserService userService;
     private final MessageFactory messageFactory;
-    private final KeyboardFactory keyboardFactory;
+    private final ChatKeyboardFactory chatKeyboardFactory;
 
     @Override
     public String nextPage(Update update) {
@@ -41,12 +41,12 @@ public class DriverPage implements BotPage {
         InlineKeyboardMarkup inlineKeyboard;
         String pageMessage = messageFactory.getPageMessage(PageMessageEnum.DRIVER_MENU, locale);
         if (user.getIsVerified().equals(Verification.VERIFIED)) {
-            inlineKeyboard = keyboardFactory.searchPassengers(locale);
+            inlineKeyboard = chatKeyboardFactory.searchPassengers(locale);
         } else if (user.getIsVerified().equals(Verification.PENDING)) {
-            inlineKeyboard = keyboardFactory.verificationPending(locale);
-            messageFactory.getPageMessage(PageMessageEnum.PENDING_VERIFICATION, locale);
+            inlineKeyboard = chatKeyboardFactory.verificationPending(locale);
+            pageMessage = messageFactory.getPageMessage(PageMessageEnum.PENDING_VERIFICATION, locale);
         } else {
-            inlineKeyboard = keyboardFactory.becomeDriver(locale);
+            inlineKeyboard = chatKeyboardFactory.becomeDriver(locale);
         }
 
         return List.of(

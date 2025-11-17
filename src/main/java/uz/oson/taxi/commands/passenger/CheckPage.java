@@ -6,12 +6,12 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
-import uz.oson.taxi.commands.interfaces.OrderAction;
+import uz.oson.taxi.commands.interfaces.Action;
 import uz.oson.taxi.entity.Orders;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrderService;
 import uz.oson.taxi.service.UserService;
-import uz.oson.taxi.util.KeyboardFactory;
+import uz.oson.taxi.util.ChatKeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
 import uz.oson.taxi.util.PageIdGenerator;
 import uz.oson.taxi.util.UpdateUtil;
@@ -20,17 +20,17 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CheckOrderPage implements BotPage, OrderAction {
+public class CheckPage implements BotPage, Action {
     private final UserService userService;
     private final MessageFactory messageFactory;
-    private final KeyboardFactory keyboardFactory;
+    private final ChatKeyboardFactory chatKeyboardFactory;
     private final OrderService orderService;
 
     @Override
     public String nextPage(Update update) {
         String input = UpdateUtil.getInput(update);
         if (RegExEnum.ConfirmOrder.matches(input)) {
-            updateOrder(update);
+            update(update);
             return PageIdGenerator.generate(BotPageStageEnum.CONFIRM_ORDER, UserTypeEnum.PASSENGER);
         } else if (RegExEnum.CancelOrder.matches(input)) {
             orderService.cancelOrder(UpdateUtil.getChatId(update));
@@ -49,7 +49,7 @@ public class CheckOrderPage implements BotPage, OrderAction {
                 SendMessage.builder()
                         .chatId(String.valueOf(chatId))
                         .text(fillOrderDetails(pageMessage, chatId, locale))
-                        .replyMarkup(keyboardFactory.checkOrderKeyboard(locale))
+                        .replyMarkup(chatKeyboardFactory.checkOrderKeyboard(locale))
                         .build()
         );
     }
@@ -70,7 +70,7 @@ public class CheckOrderPage implements BotPage, OrderAction {
     }
 
     @Override
-    public void updateOrder(Update update) {
+    public void update(Update update) {
         Long chatId = UpdateUtil.getChatId(update);
         orderService.confirmOrder(chatId);
     }

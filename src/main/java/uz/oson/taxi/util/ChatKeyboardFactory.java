@@ -6,9 +6,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import uz.oson.taxi.entity.enums.ButtonEnum;
+import uz.oson.taxi.entity.enums.CityEnum;
 import uz.oson.taxi.entity.enums.LocaleEnum;
 
 import java.time.LocalDate;
@@ -18,26 +18,25 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class KeyboardFactory {
-
-    private final MessageFactory messageFactory;
+public class ChatKeyboardFactory {
+    private final KeyboardUtil keyboardUtil;
 
     // ------------------ Inline Keyboards ------------------
 
     public InlineKeyboardMarkup seatsKeyboard(LocaleEnum localeEnum, int count) {
-        InlineKeyboardButton seatsCount = button(ButtonEnum.SEATS_COUNT, localeEnum);
+        InlineKeyboardButton seatsCount = keyboardUtil.button(ButtonEnum.SEATS_COUNT, localeEnum);
         seatsCount.setText(String.valueOf(count));
 
 
         List<InlineKeyboardButton> seatsRow = List.of(
-                button(ButtonEnum.MINUS, localeEnum),
+                keyboardUtil.button(ButtonEnum.MINUS, localeEnum),
                 seatsCount,
-                button(ButtonEnum.PLUS, localeEnum)
+                keyboardUtil.button(ButtonEnum.PLUS, localeEnum)
         );
 
         List<List<InlineKeyboardButton>> rows = List.of(
                 seatsRow,
-                List.of(button(ButtonEnum.SAVE_SEATS, localeEnum))
+                List.of(keyboardUtil.button(ButtonEnum.SAVE_SEATS, localeEnum))
         );
 
         return KeyboardUtil.inlineKeyboard(rows);
@@ -70,90 +69,89 @@ public class KeyboardFactory {
     public InlineKeyboardMarkup languageKeyboard() {
         return KeyboardUtil.inlineKeyboard(List.of(
                 List.of(
-                        button(ButtonEnum.UZ_BUTTON, LocaleEnum.UZ),
-                        button(ButtonEnum.EN_BUTTON, LocaleEnum.EN),
-                        button(ButtonEnum.RU_BUTTON, LocaleEnum.RU)
+                        keyboardUtil.button(ButtonEnum.UZ_BUTTON, LocaleEnum.UZ),
+                        keyboardUtil.button(ButtonEnum.EN_BUTTON, LocaleEnum.EN),
+                        keyboardUtil.button(ButtonEnum.RU_BUTTON, LocaleEnum.RU)
                 )
         ));
     }
 
     public InlineKeyboardMarkup roleKeyboard(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.DRIVER_BUTTON, ButtonEnum.PASSENGER_BUTTON),
-                inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
-        ));
-    }
-
-    public InlineKeyboardMarkup driverMenuKeyboard(LocaleEnum localeEnum) {
-        return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.JOIN_GROUP),
-                inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.DRIVER_BUTTON, ButtonEnum.PASSENGER_BUTTON),
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
         ));
     }
 
     public InlineKeyboardMarkup passengerMenuKeyboard(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.CREATE_ORDER),
-                inlineRow(localeEnum, ButtonEnum.MY_ORDERS),
-                inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
-        ));
-    }
-
-    public InlineKeyboardMarkup fromCityKeyboard(LocaleEnum localeEnum) {
-        return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.KOKAND, ButtonEnum.TASHKENT)
-        ));
-    }
-
-    public InlineKeyboardMarkup toCityKeyboard(LocaleEnum localeEnum) {
-        return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.KOKAND, ButtonEnum.TASHKENT)
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.CREATE_ORDER),
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.MY_ORDERS),
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
         ));
     }
 
     public InlineKeyboardMarkup commentKeyboard(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.SKIP_COMMENT)
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.SKIP_COMMENT)
         ));
     }
 
     public InlineKeyboardMarkup checkOrderKeyboard(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.CONFIRM_ORDER),
-                inlineRow(localeEnum, ButtonEnum.CANCEL_ORDER)
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.CONFIRM_ORDER),
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.CANCEL_ORDER)
         ));
     }
 
     public InlineKeyboardMarkup verificationPending(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
         ));
     }
 
     public InlineKeyboardMarkup becomeDriver(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.BECOME_DRIVER),
-                inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.BECOME_DRIVER),
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
         ));
     }
 
     public InlineKeyboardMarkup searchPassengers(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.SEARCH_PASSENGERS),
-                inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.SEARCH_PASSENGERS),
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.BACK_BUTTON)
         ));
     }
 
     public InlineKeyboardMarkup backToMainMenuKeyboard(LocaleEnum localeEnum) {
         return KeyboardUtil.inlineKeyboard(List.of(
-                inlineRow(localeEnum, ButtonEnum.HOME)
+                keyboardUtil.inlineRow(localeEnum, ButtonEnum.HOME)
+        ));
+    }
+
+    public InlineKeyboardMarkup routes(LocaleEnum localeEnum) {
+        return KeyboardUtil.inlineKeyboard(List.of(
+                keyboardUtil.inlineRow(localeEnum, CityEnum.TASHKENT),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.TASHKENT_REGION),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.SIRDARIA),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.SAMARKAND),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.BUKHARA),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.FERGANA),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.NAMANGAN),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.ANDIJAN),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.NAVOI),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.KASHKADARIA),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.SURKHANDARIA),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.KHOREZM),
+                keyboardUtil.inlineRow(localeEnum, CityEnum.KARAKALPAKSTAN)
         ));
     }
 
     // ------------------ Reply Keyboards ------------------
 
     public ReplyKeyboardMarkup shareContactKeyboard(LocaleEnum localeEnum) {
-        KeyboardRow keyboardRow = replyRow(localeEnum, ButtonEnum.SHARE_CONTACT);
+        KeyboardRow keyboardRow = keyboardUtil.replyRow(localeEnum, ButtonEnum.SHARE_CONTACT);
         keyboardRow.getFirst().setRequestContact(true);
         return KeyboardUtil.replyKeyboard(
                 List.of(keyboardRow),
@@ -165,28 +163,5 @@ public class KeyboardFactory {
         return KeyboardUtil.cleanReplyKeyboard();
     }
 
-    // ------------------ Вспомогательные методы ------------------
 
-    private InlineKeyboardButton button(ButtonEnum buttonEnum, LocaleEnum localeEnum) {
-        return InlineKeyboardButton.builder()
-                .text(messageFactory.getButtonText(buttonEnum, localeEnum))
-                .callbackData(buttonEnum.getButtonCallBack())
-                .build();
-    }
-
-    private List<InlineKeyboardButton> inlineRow(LocaleEnum localeEnum, ButtonEnum... buttons) {
-        List<InlineKeyboardButton> row = new ArrayList<>();
-        for (ButtonEnum button : buttons) {
-            row.add(button(button, localeEnum));
-        }
-        return row;
-    }
-
-    private KeyboardRow replyRow(LocaleEnum localeEnum, ButtonEnum... buttons) {
-        KeyboardRow row = new KeyboardRow();
-        for (ButtonEnum button : buttons) {
-            row.add(new KeyboardButton(messageFactory.getButtonText(button, localeEnum)));
-        }
-        return row;
-    }
 }

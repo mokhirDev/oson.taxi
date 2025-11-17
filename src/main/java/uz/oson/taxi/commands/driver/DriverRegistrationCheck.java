@@ -19,7 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class DriverRegistrationCompleted implements BotPage, Action {
+public class DriverRegistrationCheck implements BotPage, Action {
 
     private final UserService userService;
     private final MessageFactory messageFactory;

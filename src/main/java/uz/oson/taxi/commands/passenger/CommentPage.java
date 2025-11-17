@@ -6,12 +6,12 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
-import uz.oson.taxi.commands.interfaces.OrderAction;
+import uz.oson.taxi.commands.interfaces.Action;
 import uz.oson.taxi.entity.Orders;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrderService;
 import uz.oson.taxi.service.UserService;
-import uz.oson.taxi.util.KeyboardFactory;
+import uz.oson.taxi.util.ChatKeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
 import uz.oson.taxi.util.PageIdGenerator;
 import uz.oson.taxi.util.UpdateUtil;
@@ -20,8 +20,8 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class CommentPage implements BotPage, OrderAction {
-    private final KeyboardFactory keyboardFactory;
+public class CommentPage implements BotPage, Action {
+    private final ChatKeyboardFactory chatKeyboardFactory;
     private final UserService userService;
     private final MessageFactory messageFactory;
     private final OrderService orderService;
@@ -30,7 +30,7 @@ public class CommentPage implements BotPage, OrderAction {
     public String nextPage(Update update) {
         String input = UpdateUtil.getInput(update);
         if (RegExEnum.Text.matches(input) || RegExEnum.SkipComment.matches(input)) {
-            updateOrder(update);
+            update(update);
             return PageIdGenerator.generate(BotPageStageEnum.CHECK_ORDER, UserTypeEnum.PASSENGER);
         }
         return getPageId();
@@ -45,14 +45,14 @@ public class CommentPage implements BotPage, OrderAction {
                         .builder()
                         .chatId(String.valueOf(chatId))
                         .text(messageFactory.getPageMessage(PageMessageEnum.COMMENT, locale))
-                        .replyMarkup(keyboardFactory.commentKeyboard(locale))
+                        .replyMarkup(chatKeyboardFactory.commentKeyboard(locale))
                         .build()
         );
 
     }
 
     @Override
-    public void updateOrder(Update update) {
+    public void update(Update update) {
         InputType inputType = InputType.getInputType(update);
         if (inputType == InputType.TEXT) {
             Long chatId = UpdateUtil.getChatId(update);

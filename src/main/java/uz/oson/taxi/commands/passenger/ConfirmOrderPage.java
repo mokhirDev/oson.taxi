@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.UserService;
-import uz.oson.taxi.util.KeyboardFactory;
+import uz.oson.taxi.util.ChatKeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
 import uz.oson.taxi.util.PageIdGenerator;
 import uz.oson.taxi.util.UpdateUtil;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ConfirmOrderPage implements BotPage {
     private final MessageFactory messageFactory;
-    private final KeyboardFactory keyboardFactory;
+    private final ChatKeyboardFactory chatKeyboardFactory;
     private final UserService userService;
 
     @Override
@@ -40,7 +40,7 @@ public class ConfirmOrderPage implements BotPage {
                 SendMessage.builder()
                         .chatId(String.valueOf(chatId))
                         .text(messageFactory.getPageMessage(PageMessageEnum.CONFIRM_ORDER, locale))
-                        .replyMarkup(keyboardFactory.backToMainMenuKeyboard(locale))
+                        .replyMarkup(chatKeyboardFactory.backToMainMenuKeyboard(locale))
                         .build()
         );
     }

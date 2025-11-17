@@ -25,14 +25,18 @@ spring:
     redis:
       host: localhost
       port: 6379
-      user-prefix: "userState:"
+      user-prefix: "user_state:"
       order-prefix: "order:"
+      last-message-id-prefix: "last_message_id:"
+      page-history-prefix: "page_history:"
+      driver-route-prefix: "driver_route:"
       ttl-hours: 24
 
 telegram:
   bot:
     token: "8396733420:AAHn1NIwpil9wgxD10ew-5XI_70JFTuiAA4"
     username: "MohirTaxiBot"
+    oson-taxi-admin: "-1003322130715"
 
 logging:
   level:

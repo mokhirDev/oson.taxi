@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.UserService;
-import uz.oson.taxi.util.KeyboardFactory;
+import uz.oson.taxi.util.ChatKeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
 import uz.oson.taxi.util.PageIdGenerator;
 import uz.oson.taxi.util.UpdateUtil;
@@ -21,7 +21,7 @@ public class RolePage implements BotPage {
 
     private final UserService userService;
     private final MessageFactory messageFactory;
-    private final KeyboardFactory keyboardFactory;
+    private final ChatKeyboardFactory chatKeyboardFactory;
 
     @Override
     public String nextPage(Update update) {
@@ -44,7 +44,7 @@ public class RolePage implements BotPage {
                 SendMessage.builder()
                         .chatId(String.valueOf(chatId))
                         .text(messageFactory.getPageMessage(PageMessageEnum.ROLE, locale))
-                        .replyMarkup(keyboardFactory.roleKeyboard(locale))
+                        .replyMarkup(chatKeyboardFactory.roleKeyboard(locale))
                         .build()
         );
     }

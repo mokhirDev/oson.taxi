@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import uz.oson.taxi.commands.interfaces.Action;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.UserState;
 import uz.oson.taxi.entity.enums.*;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class WriteSecondNameDriver implements BotPage {
+public class WriteSecondNameDriver implements BotPage, Action {
     private final UserService userService;
     private final MessageFactory messageFactory;
 
@@ -25,7 +26,8 @@ public class WriteSecondNameDriver implements BotPage {
     public String nextPage(Update update) {
         String input = UpdateUtil.getInput(update);
         if (RegExEnum.Text.matches(input)){
-            return PageIdGenerator.generate(BotPageStageEnum.DRIVER_REGISTRATION_DONE, UserTypeEnum.DRIVER);
+            update(update);
+            return PageIdGenerator.generate(BotPageStageEnum.SHARE_CONTACT, UserTypeEnum.DRIVER);
         }
         return getPageId();
     }
@@ -35,8 +37,8 @@ public class WriteSecondNameDriver implements BotPage {
         Long chatId = UpdateUtil.getChatId(update);
         UserState user = userService.getUser(chatId);
         LocaleEnum locale = user.getLocale();
-        userService.setCurrentPage(BotPageStageEnum.WRITE_NAME, chatId);
-        userService.setFirstName(update);
+        userService.setCurrentPage(BotPageStageEnum.WRITE_SECOND_NAME, chatId);
+
         return List.of(
                 SendMessage.builder()
                         .chatId(String.valueOf(chatId))
@@ -52,5 +54,16 @@ public class WriteSecondNameDriver implements BotPage {
                 BotPageStageEnum.WRITE_SECOND_NAME,
                 UserTypeEnum.DRIVER
         );
+    }
+
+    @Override
+    public void update(Update update) {
+        InputType inputType = InputType.getInputType(update);
+        if (inputType == InputType.TEXT) {
+            String driverSecondName = UpdateUtil.getInput(update);
+            Long chatId = UpdateUtil.getChatId(update);
+            UserState user = userService.getUser(chatId);
+            user.setSecondName(driverSecondName);
+        }
     }
 }

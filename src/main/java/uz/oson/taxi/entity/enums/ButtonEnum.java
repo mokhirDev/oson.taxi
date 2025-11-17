@@ -4,7 +4,7 @@ package uz.oson.taxi.entity.enums;
 import lombok.Getter;
 
 @Getter
-public enum ButtonEnum {
+public enum ButtonEnum implements BaseEnum {
 
     // ---------------- Inline Buttons ----------------
     MINUS("btn.seats.minus", "seat:minus", ButtonTypeEnum.INLINE),
@@ -20,6 +20,8 @@ public enum ButtonEnum {
     PASSENGER_BUTTON("btn.passenger", "passenger", ButtonTypeEnum.INLINE),
     BACK_BUTTON("btn.back", "back", ButtonTypeEnum.INLINE),
 
+    ACCEPT_DRIVER("accept.driver", "accept_driver", ButtonTypeEnum.INLINE),
+    DISMISS_DRIVER("dismiss.driver", "dismiss_driver", ButtonTypeEnum.INLINE),
     BECOME_DRIVER("become.driver", "become_driver", ButtonTypeEnum.INLINE),
     SEARCH_PASSENGERS("search.passengers", "search_passengers", ButtonTypeEnum.INLINE),
     JOIN_GROUP("join.to.group", "join_to_group", ButtonTypeEnum.INLINE),
@@ -33,9 +35,6 @@ public enum ButtonEnum {
     CANCEL_ORDER("btn.cancel", "cancel_order", ButtonTypeEnum.INLINE),
 
     HOME("btn.main.menu", "main_menu", ButtonTypeEnum.INLINE),
-
-    KOKAND("kokand", "kokand", ButtonTypeEnum.INLINE),
-    TASHKENT("tashkent", "tashkent", ButtonTypeEnum.INLINE),
     // ---------------- Reply Buttons ----------------
     SHARE_CONTACT("btn.share.contact", "share_contact", ButtonTypeEnum.REPLY);
 

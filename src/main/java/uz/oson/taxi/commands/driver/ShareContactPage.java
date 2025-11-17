@@ -1,12 +1,12 @@
 package uz.oson.taxi.commands.driver;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import uz.oson.taxi.commands.interfaces.Action;
 import uz.oson.taxi.commands.interfaces.BotPage;
+import uz.oson.taxi.commands.interfaces.Action;
 import uz.oson.taxi.entity.UserState;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.UserService;
@@ -17,20 +17,19 @@ import uz.oson.taxi.util.UpdateUtil;
 
 import java.util.List;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class DriverRegistrationCompleted implements BotPage, Action {
-
-    private final UserService userService;
+public class ShareContactPage implements BotPage, Action {
     private final MessageFactory messageFactory;
     private final ChatKeyboardFactory chatKeyboardFactory;
+    private final UserService userService;
 
     @Override
     public String nextPage(Update update) {
         String input = UpdateUtil.getInput(update);
-        update(update);
-        if (RegExEnum.Home.matches(input)) {
-            return PageIdGenerator.generate(BotPageStageEnum.DRIVER_MENU, UserTypeEnum.DRIVER);
+        if (RegExEnum.ShareContact.matches(input)) {
+            update(update);
+            return PageIdGenerator.generate(BotPageStageEnum.DESTINATION_FROM_CITY, UserTypeEnum.DRIVER);
         }
         return getPageId();
     }
@@ -39,16 +38,14 @@ public class DriverRegistrationCompleted implements BotPage, Action {
     public List<BotApiMethod<?>> handle(Update update) {
         Long chatId = UpdateUtil.getChatId(update);
         UserState user = userService.getUser(chatId);
-        LocaleEnum locale = user.getLocale();
-        userService.setCurrentPage(BotPageStageEnum.DRIVER_REGISTRATION_COMPLETED, chatId);
+        LocaleEnum localeEnum = user.getLocale();
+        userService.setCurrentPage(BotPageStageEnum.SHARE_CONTACT, chatId);
 
-        userService.pending(user);
-        String pageMessage = messageFactory.getPageMessage(PageMessageEnum.DRIVER_REGISTRATION_DONE, locale);
         return List.of(
                 SendMessage.builder()
                         .chatId(String.valueOf(chatId))
-                        .text(pageMessage.formatted(user.getFirstName()))
-                        .replyMarkup(chatKeyboardFactory.backToMainMenuKeyboard(locale))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.SHARE_CONTACT, localeEnum))
+                        .replyMarkup(chatKeyboardFactory.shareContactKeyboard(localeEnum))
                         .build()
         );
     }
@@ -56,7 +53,7 @@ public class DriverRegistrationCompleted implements BotPage, Action {
     @Override
     public String getPageId() {
         return PageIdGenerator.generate(
-                BotPageStageEnum.DRIVER_REGISTRATION_COMPLETED,
+                BotPageStageEnum.SHARE_CONTACT,
                 UserTypeEnum.DRIVER
         );
     }
@@ -64,11 +61,12 @@ public class DriverRegistrationCompleted implements BotPage, Action {
     @Override
     public void update(Update update) {
         InputType inputType = InputType.getInputType(update);
-        if (inputType == InputType.CALLBACK) {
-            String driverSecondName = UpdateUtil.getInput(update);
+        if (inputType == InputType.CONTACT) {
+            String phoneNumber = UpdateUtil.getInput(update);
             Long chatId = UpdateUtil.getChatId(update);
             UserState user = userService.getUser(chatId);
-            user.setSecondName(driverSecondName);
+            user.setPhoneNumber(phoneNumber);
         }
     }
+
 }

@@ -10,7 +10,7 @@ import uz.oson.taxi.entity.Orders;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrdersCacheService;
 import uz.oson.taxi.service.UserService;
-import uz.oson.taxi.util.KeyboardFactory;
+import uz.oson.taxi.util.ChatKeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
 import uz.oson.taxi.util.PageIdGenerator;
 import uz.oson.taxi.util.UpdateUtil;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderSeatsPage implements BotPage {
     private final OrdersCacheService ordersCacheService;
-    private final KeyboardFactory keyboardFactory;
+    private final ChatKeyboardFactory chatKeyboardFactory;
     private final MessageFactory messageFactory;
     private final UserService userService;
 
@@ -44,7 +44,7 @@ public class OrderSeatsPage implements BotPage {
                 SendMessage.builder()
                         .chatId(String.valueOf(chatId))
                         .text(messageFactory.getPageMessage(PageMessageEnum.ORDER_SEATS, locale))
-                        .replyMarkup(keyboardFactory.seatsKeyboard(locale, seatsCount))
+                        .replyMarkup(chatKeyboardFactory.seatsKeyboard(locale, seatsCount))
                         .build()
         );
     }

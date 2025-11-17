@@ -11,7 +11,7 @@ import uz.oson.taxi.entity.Orders;
 import uz.oson.taxi.entity.enums.*;
 import uz.oson.taxi.service.OrderService;
 import uz.oson.taxi.service.UserService;
-import uz.oson.taxi.util.KeyboardFactory;
+import uz.oson.taxi.util.ChatKeyboardFactory;
 import uz.oson.taxi.util.MessageFactory;
 import uz.oson.taxi.util.PageIdGenerator;
 import uz.oson.taxi.util.UpdateUtil;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderFromPage implements BotPage {
     private final MessageFactory messageFactory;
-    private final KeyboardFactory keyboardFactory;
+    private final ChatKeyboardFactory chatKeyboardFactory;
     private final UserService userService;
     private final OrderService orderService;
 
@@ -43,13 +43,13 @@ public class OrderFromPage implements BotPage {
 
         updateOrder(update);
         SendMessage removeReply = buildSendMessage(chatId, messageFactory.getPageMessage(PageMessageEnum.CONTACT_RECEIVED, locale),
-                keyboardFactory.cleanReplyKeyboard());
+                chatKeyboardFactory.cleanReplyKeyboard());
         return List.of(
                 removeReply,
                 SendMessage.builder()
                         .chatId(String.valueOf(chatId))
-                        .text(messageFactory.getPageMessage(PageMessageEnum.ORDER_FROM, locale))
-                        .replyMarkup(keyboardFactory.fromCityKeyboard(locale))
+                        .text(messageFactory.getPageMessage(PageMessageEnum.DISTANCE_FROM, locale))
+                        .replyMarkup(chatKeyboardFactory.fromCityKeyboard(locale))
                         .build()
         );
     }

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import uz.oson.taxi.commands.interfaces.Action;
 import uz.oson.taxi.commands.interfaces.BotPage;
 import uz.oson.taxi.entity.UserState;
 import uz.oson.taxi.entity.enums.*;
@@ -17,7 +18,8 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class WriteName implements BotPage {
+public class WriteName implements BotPage, Action {
+
     private final UserService userService;
     private final MessageFactory messageFactory;
 
@@ -25,6 +27,7 @@ public class WriteName implements BotPage {
     public String nextPage(Update update) {
         String input = UpdateUtil.getInput(update);
         if (RegExEnum.Text.matches(input)){
+            update(update);
             return PageIdGenerator.generate(BotPageStageEnum.WRITE_SECOND_NAME, UserTypeEnum.DRIVER);
         }
         return getPageId();
@@ -35,6 +38,7 @@ public class WriteName implements BotPage {
         Long chatId = UpdateUtil.getChatId(update);
         UserState user = userService.getUser(chatId);
         LocaleEnum locale = user.getLocale();
+        userService.setCurrentPage(BotPageStageEnum.WRITE_NAME, chatId);
 
         return List.of(
                 SendMessage.builder()
@@ -48,8 +52,19 @@ public class WriteName implements BotPage {
     @Override
     public String getPageId() {
         return PageIdGenerator.generate(
-                BotPageStageEnum.BECOME_DRIVER,
+                BotPageStageEnum.WRITE_NAME,
                 UserTypeEnum.DRIVER
         );
+    }
+
+    @Override
+    public void update(Update update) {
+        InputType inputType = InputType.getInputType(update);
+        if (inputType == InputType.TEXT) {
+            String driverName = UpdateUtil.getInput(update);
+            Long chatId = UpdateUtil.getChatId(update);
+            UserState user = userService.getUser(chatId);
+            user.setFirstName(driverName);
+        }
     }
 }

@@ -1,8 +1,10 @@
 package uz.oson.taxi.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import uz.oson.taxi.entity.enums.CityEnum;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -13,16 +15,29 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class NavigationHistoryService {
+    @Value("${spring.data.redis.last-message-id-prefix}")
+    private String lastMessageId;
+
+    @Value("${spring.data.redis.page-history-prefix}")
+    private String pageHistory;
+
+    @Value("${spring.data.redis.driver-route-prefix}")
+    private String driverRoute;
 
     private final RedisTemplate<String, String> pageHistoryRedisTemplate;
     private final RedisTemplate<String, Integer> lastMessageRedisTemplate;
+    private final RedisTemplate<String, String> driverRoutesRedisTemplate;
 
     private String pageHistoryKey(Long chatId) {
-        return "page_history:" + chatId;
+        return pageHistory + chatId;
     }
 
     private String lastMessageIdKey(Long chatId) {
-        return "last_message_id:" + chatId;
+        return lastMessageId + chatId;
+    }
+
+    private String driverRouteKey(Long chatId) {
+        return driverRoute + chatId;
     }
 
     // PAGE history (stack)
@@ -78,5 +93,11 @@ public class NavigationHistoryService {
 
     public List<Integer> getAllMessageIds(Long chatId) {
         return lastMessageRedisTemplate.opsForList().range(lastMessageIdKey(chatId), 0, -1);
+    }
+
+    public void pushDriverRoute(Long chatId, CityEnum city) {
+        String key = driverRouteKey(chatId);
+        driverRoutesRedisTemplate.opsForList().rightPush(key, city.name());
+        driverRoutesRedisTemplate.expire(key, Duration.ofHours(24));
     }
 }
